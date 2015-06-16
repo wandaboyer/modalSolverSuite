@@ -4,7 +4,7 @@ Created on Jun 13, 2015
 @author: wandaboyer
 '''
 
-from modalSolverSuite import verifier
+from verifier import verifier
 
 class kripkeModelConstructor(object):
     '''
@@ -26,7 +26,6 @@ class kripkeModelConstructor(object):
         '''
         Opens file and reads into a list
         '''
-        self.InstanceFileLines = [line.strip() for line in open(self.InstanceFilepath) if line != '\n']
         self.EnfragmoOutputFileLines = [line.strip() for line in open(self.EnfragmoOutputFilepath) if line != '\n']
     
     def parseEnfragmoOutput(self):
@@ -34,17 +33,26 @@ class kripkeModelConstructor(object):
         Determines whether the formula is unsatisfiable; if so, the procedure
         halts. If not, then the necessary information is extracted from both the
         problem instance file and the output from Enfragmo.
-        '''   
+        '''
         
+        return True
+    
+    def parseInstanceFile(self):
+        verifierObject = verifier(self.InstanceFilepath)
+        verifierObject.readProblemInstanceFile()
+        self.numDistinctAtoms = verifierObject.countNumAtoms()
+        self.numWorlds = verifierObject.numWorlds()
+         
     def printKripkeModel(self):
         '''
         Sends result to a file.
-        '''    
+        '''  
+        #print(str(self.numDistinctAtoms) + " " + str(self.numWorlds))  
 '''
 Testing
 '''     
 if __name__ == "__main__":
-    instanceFileDir = "/home/wanda/Documents/Dropbox/Research/Final Project/Instance Files"
+    instanceFileDir = "/home/wanda/Documents/Dropbox/Research/Final Project/Instance Files/"
     instanceFilename = "needsNonReflexiveModel"
     
     EnfragmoOutputDir = "/home/wanda/Documents/Dropbox/Research/Final Project/Output/"
@@ -54,6 +62,7 @@ if __name__ == "__main__":
     
     thing = kripkeModelConstructor(instanceFileDir+instanceFilename+'.I', instanceFilename, EnfragmoOutputDir+EnfragmoOutputFilename+'.xml', EnfragmoOutputFilename, ModelOutputDir)
     
-    thing.readEnfragmoOutput()
-    thing.parseEnfragmoOutput()
+    if thing.readEnfragmoOutput():
+        thing.parseEnfragmoOutput()
+    thing.parseInstanceFile()
     thing.printKripkeModel()

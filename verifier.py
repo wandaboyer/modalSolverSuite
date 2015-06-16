@@ -6,7 +6,7 @@ Created on Jan. 12, 2015
 '''
 from treelib import Tree, Node
 
-class Verifier:
+class verifier:
     '''
     This verifier object is intended to receive an Enfragmo instance file,
     and then to determine the original formula corresponding to that file.
@@ -79,6 +79,9 @@ class Verifier:
         self.countNumAtoms()
         self.buildTree()
         self.printFormula()
+     
+    def numWorlds(self):
+        return int(self.instanceFileLines[1][-2])
         
     def countNumTreeNodes(self):
         '''
@@ -106,10 +109,11 @@ class Verifier:
         entries between each of the appropriate PREDICATE identifiers (given a 
         well-formed instance file).
         '''
-        self.numAtoms = int((self.instanceFileLines.index("PREDICATE SameAtom") - \
-                          self.instanceFileLines.index("PREDICATE Atom")) - \
-                          (self.instanceFileLines.index("PREDICATE And")- \
-                           self.instanceFileLines.index("PREDICATE SameAtom")))
+        self.numAtoms = int((self.instanceFileLines.index("PREDICATE And")- \
+                            (self.instanceFileLines.index("PREDICATE Atom")+1) - \
+                           (len(self.instanceFileLines) - \
+                           (self.instanceFileLines.index("PREDICATE SameAtom")+1))))
+        return self.numAtoms
         
     def findInInstanceFile(self, predicate):
         i = 0
@@ -223,6 +227,6 @@ class Verifier:
 Testing
 '''     
 if __name__ == "__main__":
-    thing = Verifier("/home/wanda/Documents/Dropbox/Research/Final Project/needsNonTransitiveModel.I")
+    thing = verifier("/home/wanda/Documents/Dropbox/Research/Final Project/Instance Files/needsNonReflexiveModel.I")
     thing.readProblemInstanceFile()
     thing.parseProblemInstanceFile()

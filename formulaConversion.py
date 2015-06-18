@@ -47,12 +47,17 @@ class formulaConversion(object):
     def stripAtomNaming(self):
         '''
         This method simply strips every occurrence of 'p' from the benchmark
-        formulas, since the labeling is otherwise unique.
+        formulas, since the labeling is otherwise unique. While maintaining
+        the string of one or more digits ('\2' refers to '\d+' in the first arg
+        to re.sub), we add an additional space; this requires removing the space
+        that existed previously before each '->' and '&', but it all comes out
+        in the wash. If only they'd been more consistent with their spacing in 
+        the first place!
         '''
-        self.benchmarkFileLines = [s.replace('p', '') for s in self.benchmarkFileLines]
-    
+        self.benchmarkFileLines = [re.sub(r'(p)(\d+)', r'\2 ', formula) for formula in self.benchmarkFileLines]
+        
     def correctSpacing(self):
-        self.benchmarkFileLines = [self.multiple_replace(formula, {'box':'box ', 'dia':'dia ', '~':'~ ', '(':'( ', ')':') '}) for formula in self.benchmarkFileLines]
+        self.benchmarkFileLines = [self.multiple_replace(formula, {'box':'box ', 'dia':'dia ', '~':'~ ', '(':'( ', ')':') ', ' ->':'->', ' &':'&'}) for formula in self.benchmarkFileLines]
         
     def multiple_replace(self, string, rep_dict):
         pattern = re.compile("|".join([re.escape(k) for k in rep_dict.keys()]), re.M)

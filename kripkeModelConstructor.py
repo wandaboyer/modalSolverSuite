@@ -27,15 +27,13 @@ class kripkeModelConstructor(object):
         Opens file and reads into a list
         '''
         self.EnfragmoOutputFileLines = [line.strip() for line in open(self.EnfragmoOutputFilepath) if line != '\n']
+        if self.EnfragmoOutputFileLines[2]=="<Unsatisfiable/>":
+            return False
     
     def parseEnfragmoOutput(self):
         '''
-        Determines whether the formula is unsatisfiable; if so, the procedure
-        halts. If not, then the necessary information is extracted from both the
-        problem instance file and the output from Enfragmo.
-        '''
         
-        return True
+        '''
     
     def parseInstanceFile(self):
         verifierObject = verifier(self.InstanceFilepath)
@@ -64,5 +62,7 @@ if __name__ == "__main__":
     
     if thing.readEnfragmoOutput():
         thing.parseEnfragmoOutput()
-    thing.parseInstanceFile()
-    thing.printKripkeModel()
+        thing.parseInstanceFile()
+        thing.printKripkeModel()
+    else:
+        print("The formula was determined to be unsatisfiable by Enfragmo, and therefore doesn't have a satisfying Kripke structure.")

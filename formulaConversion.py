@@ -3,7 +3,7 @@ Created on Jun 12, 2015
 
 @author: wandaboyer
 '''
-import re
+import re, os
 
 class formulaConversion(object):
     '''
@@ -57,7 +57,7 @@ class formulaConversion(object):
         self.benchmarkFileLines = [re.sub(r'(p)(\d+)', r'\2 ', formula) for formula in self.benchmarkFileLines]
         
     def correctSpacing(self):
-        self.benchmarkFileLines = [self.multiple_replace(formula, {'box':'box ', 'dia':'dia ', '~':'~ ', '(':'( ', ')':') ', ' ->':'->', ' &':'&'}) for formula in self.benchmarkFileLines]
+        self.benchmarkFileLines = [self.multiple_replace(formula, {'box':'box ', 'dia':'dia ', '~':'~ ', '(':'( ', ')':') ', ' ->':'->', ' &':'&', ' v':'v'}) for formula in self.benchmarkFileLines]
         
     def multiple_replace(self, string, rep_dict):
         pattern = re.compile("|".join([re.escape(k) for k in rep_dict.keys()]), re.M)
@@ -73,7 +73,17 @@ class formulaConversion(object):
 Testing
 '''     
 if __name__ == "__main__":
-    inputDir = "/home/wanda/Documents/Dropbox/Research/Modal benchmark formulas/"
+ 
+    rootDir = '/home/wanda/Documents/Dropbox/Research/Modal benchmark formulas/'
+    for dirName, subdirList, fileList in os.walk(rootDir, topdown=False):
+        for fname in fileList:
+            #print("inpath: "+ dirName+"/"+fname+"\n filename: "+fname+"\n output dir: "+dirName+"/ModifiedFormulas/")
+            thing = formulaConversion(dirName+"/"+fname, fname, dirName+"/ModifiedFormulas/")
+            thing.readBenchmarkFile()
+            thing.parseBenchmarkFile()
+            thing.printNewBenchmarkFile()
+            
+    '''inputDir = "/home/wanda/Documents/Dropbox/Research/Modal benchmark formulas/"
     inputFileName = "k_branch_n"
     outputDir = inputDir+"ModifiedFormulas/"
     
@@ -81,3 +91,4 @@ if __name__ == "__main__":
     thing.readBenchmarkFile()
     thing.parseBenchmarkFile()
     thing.printNewBenchmarkFile()
+    '''

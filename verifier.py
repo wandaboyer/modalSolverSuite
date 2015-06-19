@@ -25,9 +25,7 @@ class verifier:
         TYPE  Subformula [ 1.. n]
         TYPE World [1..m]
         PREDICATE Atom
-        ...
         
-        PREDICATE SameAtom
         ...
         
         PREDICATE And
@@ -44,6 +42,8 @@ class verifier:
         
         PREDICATE Diamond
         ...
+        
+        PREDICATE SameAtom
         
     Where "..." indicates that either singletons, pairs, or triples will occupy
     the lines below the current PREDICATE delimiter and the next, signifying
@@ -124,29 +124,29 @@ class verifier:
       
     def assignSymbol(self, label):
         if label == "And":
-            return "^"
+            return "&"
         elif label == "Or":
             return "v"
         elif label == "Not":
             return "~"
         elif label == "Box":
-            return "[]"
+            return "box"
         elif label == "Diamond":
-            return "<>"
+            return "dia"
         
     def assignAtom(self, i):
         self.SameAtomLL = []
         
         if len(self.SameAtomLL) == 0:
             self.SameAtomLL.append(str(i))
-            return "p_"+str(1)
+            return "p"+str(1)
         else:
             for x in self.SameAtomLL:
                 if x.contains(str(i)):
-                    return "p_"+str(x.index())
+                    return "p"+str(x.index())
                 else:
                     self.SameAtomLL.append(str(i))
-                    return "p_"+str(len(self.SameAtomLL))
+                    return "p"+str(len(self.SameAtomLL))
         
     def determineConnective(self, i):
         '''
@@ -203,24 +203,24 @@ class verifier:
         atomNumber = 1
         bracketcount = 0
         for x in self.syntaxTree.expand_tree(mode=Tree.DEPTH):
-            if "p_" in self.syntaxTree[x].tag:# == "Atom":
+            if "p" in self.syntaxTree[x].tag:# == "Atom":
                 tmp = self.syntaxTree[x].tag
                 #atomNumber += 1
                 while oplist.__len__()>0:
                     currOp = oplist.pop()
-                    if currOp in ["~", "[]", "<>"]:
-                        tmp = currOp + "(" + tmp + ")"
-                    elif currOp in ["v", "^"]:
-                        tmp = "(" + tmp + currOp + "("
+                    if currOp in ["~", "box", "dia"]:
+                        tmp = currOp + " ( " + tmp + " )"
+                    elif currOp in ["v", "&"]:
+                        tmp = "( " + tmp + " " + currOp + " ( "
                         bracketcount += 2
                         break
                 formula += tmp
-            elif self.syntaxTree[x].tag in ["~", "[]", "<>"]:
+            elif self.syntaxTree[x].tag in ["~", "box", "dia"]:
                 oplist.append(self.syntaxTree[x].tag)
-            elif self.syntaxTree[x].tag in ["v", "^"]:
+            elif self.syntaxTree[x].tag in ["v", "&"]:
                 oplist.append(self.syntaxTree[x].tag)
         while bracketcount > 0:
-                    formula += ")"
+                    formula += " )"
                     bracketcount -= 1        
         print(formula)
 '''

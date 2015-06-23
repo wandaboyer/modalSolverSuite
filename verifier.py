@@ -13,11 +13,12 @@ class verifier:
     Each subformula which is an atom will be given as a lower-case letter,
     and nesting of formulas will be indicated by appropriate bracketing.
     The symbols used to represent operators are as follows:
-        And        ^
-        Or         V
-        Not        ~
-        Box        []
-        Diamond    <>
+        And           &
+        Or            v
+        Not           ~
+        Implication   ->
+        Box           box
+        Diamond       dia
     With unary operators applied directly to atoms being dropped.
     
     The format of an instance file is assumed to be as follows:
@@ -35,6 +36,9 @@ class verifier:
         ...
         
         PREDICATE Not
+        ...
+        
+        PREDICATE Implication
         ...
         
         PREDICATE Box
@@ -129,6 +133,8 @@ class verifier:
             return "v"
         elif label == "Not":
             return "~"
+        elif label == "Implication":
+            return "->"
         elif label == "Box":
             return "box"
         elif label == "Diamond":
@@ -202,22 +208,21 @@ class verifier:
         formula = ""
         atomNumber = 1
         bracketcount = 0
-        for x in self.syntaxTree.expand_tree(mode=Tree.DEPTH):
-            if "p" in self.syntaxTree[x].tag:# == "Atom":
+        for x in self.syntaxTree.expand_tree(mode=Tree.DEPTH, reverse=True):
+            if "p" in self.syntaxTree[x].tag:
                 tmp = self.syntaxTree[x].tag
-                #atomNumber += 1
                 while oplist.__len__()>0:
                     currOp = oplist.pop()
                     if currOp in ["~", "box", "dia"]:
                         tmp = currOp + " ( " + tmp + " )"
-                    elif currOp in ["v", "&"]:
+                    elif currOp in ["v", "&", "->"]:
                         tmp = "( " + tmp + " " + currOp + " ( "
                         bracketcount += 2
                         break
                 formula += tmp
             elif self.syntaxTree[x].tag in ["~", "box", "dia"]:
                 oplist.append(self.syntaxTree[x].tag)
-            elif self.syntaxTree[x].tag in ["v", "&"]:
+            elif self.syntaxTree[x].tag in ["v", "&", "->"]:
                 oplist.append(self.syntaxTree[x].tag)
         while bracketcount > 0:
                     formula += " )"
@@ -227,6 +232,7 @@ class verifier:
 Testing
 '''     
 if __name__ == "__main__":
-    thing = verifier("/home/wanda/Documents/Dropbox/Research/Final Project/Instance Files/needsNonReflexiveModel.I")
+    #thing = verifier("/home/wanda/Documents/Dropbox/Research/Final Project/Instance Files/needsNonReflexiveModel.I")
+    thing = verifier("/home/wanda/Documents/Dropbox/Research/Final Project/Instance Files/implication1.I")
     thing.readProblemInstanceFile()
     thing.parseProblemInstanceFile()

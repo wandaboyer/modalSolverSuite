@@ -31,8 +31,7 @@ class formulaConversion(object):
         '''
         self.benchmarkFileLines = [line.strip().split(':')[-1] for line in open(self.filepath) if line != '\n']
         
-        # Removes first and second lines, which correspond to filename and begin
-        # Alternately, using list slicing: self.benchmarkFileLines = self.benchmarkFileLines[2:]
+        # Removes unnecessary preamble on first and second lines
         del self.benchmarkFileLines[0:2]
     
     def parseBenchmarkFile(self):
@@ -77,7 +76,6 @@ if __name__ == "__main__":
     rootDir = '/home/wanda/Documents/Dropbox/Research/Modal benchmark formulas/'
     for dirName, subdirList, fileList in os.walk(rootDir, topdown=False):
         for fname in fileList:
-            #print("inpath: "+ dirName+"/"+fname+"\n filename: "+fname+"\n output dir: "+dirName+"/ModifiedFormulas/")
             thing = formulaConversion(dirName+"/"+fname, fname, dirName+"/ModifiedFormulas/")
             thing.readBenchmarkFile()
             thing.parseBenchmarkFile()

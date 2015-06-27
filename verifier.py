@@ -161,29 +161,42 @@ class verifier:
         for atomEquivClass in self.SameAtomList:
             if str(i) in atomEquivClass:
                 return str(j)
+            else:
+                self.SameAtomList.append(set([str(i)]))
             j += 1
         
     def setUpSameAtomList(self):
-        startIndex = self.findInInstanceFile(lambda x: "PREDICATE SameAtom" in x) + 1
-
-        sameAtomPairs = self.instanceFileLines[startIndex:]
+        '''startIndexAllAtoms = self.findInInstanceFile(lambda x: "PREDICATE Atom" in x) + 1
+        endIndexAllAtoms =  self.findInInstanceFile(lambda x: "PREDICATE And" in x)
+        allAtomPairs = self.instanceFileLines[startIndexAllAtoms:endIndexAllAtoms]
         
+        for atom in allAtomPairs:
+            self.SameAtomList.append(set([atom.split("(")[-1].split(")")[0]]))'''
+        
+        startIndexSameAtoms = self.findInInstanceFile(lambda x: "PREDICATE SameAtom" in x) + 1
+        sameAtomPairs = self.instanceFileLines[startIndexSameAtoms:]
+           
         for pair in sameAtomPairs:
             tmp = pair.split(",")
             label1 = tmp[0].split("(")[1]
             label2 = tmp[1].split(")")[0]
-            
+             
             if not self.SameAtomList:
                 self.SameAtomList.append(set())
-                
+                self.SameAtomList[0].add(label1)
+                self.SameAtomList[0].add(label2)
+                continue
+  
             for atomEquivClass in self.SameAtomList:
+                print(atomEquivClass)
                 if label1 in atomEquivClass:
                     atomEquivClass.add(label2)
                 elif label2 in atomEquivClass:
                     atomEquivClass.add(label1)
-                elif not atomEquivClass:
-                    atomEquivClass.add(label1)
-                    atomEquivClass.add(label2)
+                else:
+                    self.SameAtomList.append(set())
+                    self.SameAtomList[-1].add(label1)
+                    self.SameAtomList[-1].add(label2)
         
     def determineConnective(self, i):
         '''
@@ -240,7 +253,6 @@ class verifier:
         bracketcount = 0
         atomLabelRegex = re.compile(r'\d+')
         for x in self.syntaxTree.expand_tree(mode=Tree.DEPTH, reverse=True):
-            #if "\d+" in self.syntaxTree[x].tag:
             if atomLabelRegex.search(self.syntaxTree[x].tag) is not None:
                 tmp = self.syntaxTree[x].tag
                 while oplist.__len__()>0:
@@ -262,12 +274,13 @@ class verifier:
                     formula += " )"
                     bracketcount -= 1        
         print(formula)
+        #print(self.SameAtomList)
 '''
 Testing
 '''     
 if __name__ == "__main__":
-    thing = verifier("/home/wanda/Documents/Dropbox/Research/Final Project/Instance Files/needsNonReflexiveModel.I")
+    #thing = verifier("/home/wanda/Documents/Dropbox/Research/Final Project/Instance Files/needsNonReflexiveModel.I")
     #thing = verifier("/home/wanda/Documents/Dropbox/Research/Final Project/Instance Files/implication1.I")
-    #thing = verifier("/home/wanda/Documents/Dropbox/Research/Final Project/Instance Files/multipleSameAtoms.I")
+    thing = verifier("/home/wanda/Documents/Dropbox/Research/Final Project/Instance Files/multipleSameAtoms.I")
     thing.readProblemInstanceFile()
     thing.parseProblemInstanceFile()

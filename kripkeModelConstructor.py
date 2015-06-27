@@ -27,25 +27,41 @@ class kripkeModelConstructor(object):
         Opens file and reads into a list
         '''
         self.EnfragmoOutputFileLines = [line.strip() for line in open(self.EnfragmoOutputFilepath) if line != '\n']
-        if self.EnfragmoOutputFileLines[2]=="<Unsatisfiable/>":
-            return False
-    
-    def parseEnfragmoOutput(self):
-        '''
         
-        '''
+        if "<Satisfiable/>" in self.EnfragmoOutputFileLines[4]:
+            return True
     
     def parseInstanceFile(self):
         verifierObject = verifier(self.InstanceFilepath)
         verifierObject.readProblemInstanceFile()
         self.numDistinctAtoms = verifierObject.countNumAtoms()
         self.numWorlds = verifierObject.numWorlds()
+        
+        #print(str(self.numDistinctAtoms) + " " + str(self.numWorlds))
+        self.worldSet = [str(i) for i in range(1, self.numWorlds+1)]
+        self.atomSet = ["p"+str(i) for i in range(1, self.numDistinctAtoms+1)]
+        self.atomicSubformulas = verifierObject.SameAtomList
+        print(self.atomicSubformulas)
+    
+    def parseEnfragmoOutput(self):
+        self.readAccessible()
+        self.readValuation()
+    
+    def readAccessible(self):
+        '''
+        '''
+    def readValuation(self):
+        '''
+        '''
          
     def printKripkeModel(self):
         '''
         Sends result to a file.
-        '''  
-        #print(str(self.numDistinctAtoms) + " " + str(self.numWorlds))  
+        '''
+        outputFile = open(self.ModelOutputDir+self.InstanceFilename+'-kripkeModel.txt', 'w+')
+        
+        for component in self.kripkeStructure:
+            outputFile.write("%s\n" % component.strip())  
 '''
 Testing
 '''     
@@ -65,4 +81,4 @@ if __name__ == "__main__":
         thing.parseInstanceFile()
         thing.printKripkeModel()
     else:
-        print("The formula was determined to be unsatisfiable by Enfragmo, and therefore doesn't have a satisfying Kripke structure.")
+        print("The formula described in instance file "+instanceFilename+".I was determined to be unsatisfiable by Enfragmo, and therefore doesn't have a satisfying Kripke structure.")

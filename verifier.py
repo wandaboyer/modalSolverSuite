@@ -5,6 +5,7 @@ Created on Jan. 12, 2015
 @contact: wbkboyer@gmail.com
 '''
 from treelib import Tree, Node
+import re
 
 class verifier:
     '''
@@ -65,6 +66,7 @@ class verifier:
         Receives the name of the instance file to be verified, then uses this
         to initialize the corresponding tree structure 
         '''
+        self.SameAtomList = []
         self.filename = filename      
         
     def readProblemInstanceFile(self):
@@ -81,6 +83,7 @@ class verifier:
         self.countNumTreeNodes()
         self.countNumTreeLeaves()
         self.countNumAtoms()
+        self.setUpSameAtomList() #NEW
         self.buildTree()
         self.printFormula()
      
@@ -94,7 +97,7 @@ class verifier:
         file. In this way, the given formula is considered to be the first
         subformula, where its main connective labels the root node, and its
         '''
-        self.numTreeNodes = int(self.instanceFileLines[0][-2:-1])
+        self.numTreeNodes = int(self.instanceFileLines[0].split(" ")[-1].split("]")[0])
         
     def countNumTreeLeaves(self):
         '''
@@ -117,8 +120,8 @@ class verifier:
                             (self.instanceFileLines.index("PREDICATE Atom")+1) - \
                            (len(self.instanceFileLines) - \
                            (self.instanceFileLines.index("PREDICATE SameAtom")+1))))
-        return self.numAtoms
-        
+        return self.numAtoms        
+            
     def findInInstanceFile(self, predicate):
         i = 0
         for x in self.instanceFileLines:
@@ -140,19 +143,47 @@ class verifier:
         elif label == "Diamond":
             return "dia"
         
-    def assignAtom(self, i):
-        self.SameAtomLL = []
-        
-        if len(self.SameAtomLL) == 0:
-            self.SameAtomLL.append(str(i))
+    ''' def assignAtom(self, i): #this appears to be fucked.
+        if len(self.SameAtomList) == 0:
+            self.SameAtomList.append(str(i)) # Adds subformula label for the atom to the list
             return "p"+str(1)
         else:
-            for x in self.SameAtomLL:
-                if x.contains(str(i)):
-                    return "p"+str(x.index())
+            for x in self.SameAtomList: #For each list of subformulas corresponding to same atom
+                #if x.contains(str(i)): #if we see the subformula is already in a list element, then we must have already realized that it refers to the same atom as another subformula
+                if str(i) in x:
+                    return "p"+str(x.index()+1) # return the label for the atom; need 1-indexed labeling
                 else:
-                    self.SameAtomLL.append(str(i))
-                    return "p"+str(len(self.SameAtomLL))
+                    self.SameAtomList.append(str(i)) # since you haven't seen the atom before, add it as another label
+                    return "p"+str(len(self.SameAtomList)) #need the index of the most recent addition
+    '''
+    def assignAtom(self, i):
+        j = 1
+        for atomEquivClass in self.SameAtomList:
+            if str(i) in atomEquivClass:
+                return str(j)
+            j += 1
+        
+    def setUpSameAtomList(self):
+        startIndex = self.findInInstanceFile(lambda x: "PREDICATE SameAtom" in x) + 1
+
+        sameAtomPairs = self.instanceFileLines[startIndex:]
+        
+        for pair in sameAtomPairs:
+            tmp = pair.split(",")
+            label1 = tmp[0].split("(")[1]
+            label2 = tmp[1].split(")")[0]
+            
+            if not self.SameAtomList:
+                self.SameAtomList.append(set())
+                
+            for atomEquivClass in self.SameAtomList:
+                if label1 in atomEquivClass:
+                    atomEquivClass.add(label2)
+                elif label2 in atomEquivClass:
+                    atomEquivClass.add(label1)
+                elif not atomEquivClass:
+                    atomEquivClass.add(label1)
+                    atomEquivClass.add(label2)
         
     def determineConnective(self, i):
         '''
@@ -166,12 +197,12 @@ class verifier:
             return self.assignAtom(i)
         if self.findInInstanceFile(lambda x: "("+str(i)+"," in x):
             SiAsMainConnective = self.findInInstanceFile(lambda x: "("+str(i)+"," in x)
-            for j in range(SiAsMainConnective, 0, -1):
+            for j in range(SiAsMainConnective, 0, -1): # go back in the file until you can find out what predicate we're dealing with
                 if self.instanceFileLines[j].split(" ")[0] == "PREDICATE":
-                    if self.instanceFileLines[j].split(" ")[1] == "SameAtom":
+                    if self.instanceFileLines[j].split(" ")[1] == "SameAtom": # if there are no tuples under SameAtom, then this isn't reached due to SiAsMainConnective
                         return self.assignAtom(i)
                     else:
-                        return self.assignSymbol(self.instanceFileLines[j].split(" ")[1])
+                        return self.assignSymbol(self.instanceFileLines[j].split(" ")[1]) # if the predicate refers to an operator, then we need to find out which one!
     
     def nodeCreation(self, predicate, SiConnective, i):        
         SiAsFirstOperand = self.findInInstanceFile(predicate)
@@ -200,24 +231,27 @@ class verifier:
         for i in range(1, self.numTreeNodes+1):
             SiConnective = self.determineConnective(i)
             self.makeSyntaxTreeNode(SiConnective, i)
-            
+          
         self.syntaxTree.show()
         
     def printFormula(self):
         oplist = []
         formula = ""
-        atomNumber = 1
         bracketcount = 0
+        atomLabelRegex = re.compile(r'\d+')
         for x in self.syntaxTree.expand_tree(mode=Tree.DEPTH, reverse=True):
-            if "p" in self.syntaxTree[x].tag:
+            #if "\d+" in self.syntaxTree[x].tag:
+            if atomLabelRegex.search(self.syntaxTree[x].tag) is not None:
                 tmp = self.syntaxTree[x].tag
                 while oplist.__len__()>0:
                     currOp = oplist.pop()
-                    if currOp in ["~", "box", "dia"]:
+                    if currOp in ["box", "dia"]:
                         tmp = currOp + " ( " + tmp + " )"
+                    elif currOp in ["~"]:
+                        tmp = currOp + " " + tmp
                     elif currOp in ["v", "&", "->"]:
-                        tmp = "( " + tmp + " " + currOp + " ( "
-                        bracketcount += 2
+                        tmp = "( " + tmp + " " + currOp  + " "
+                        bracketcount += 1
                         break
                 formula += tmp
             elif self.syntaxTree[x].tag in ["~", "box", "dia"]:
@@ -232,7 +266,8 @@ class verifier:
 Testing
 '''     
 if __name__ == "__main__":
-    #thing = verifier("/home/wanda/Documents/Dropbox/Research/Final Project/Instance Files/needsNonReflexiveModel.I")
-    thing = verifier("/home/wanda/Documents/Dropbox/Research/Final Project/Instance Files/implication1.I")
+    thing = verifier("/home/wanda/Documents/Dropbox/Research/Final Project/Instance Files/needsNonReflexiveModel.I")
+    #thing = verifier("/home/wanda/Documents/Dropbox/Research/Final Project/Instance Files/implication1.I")
+    #thing = verifier("/home/wanda/Documents/Dropbox/Research/Final Project/Instance Files/multipleSameAtoms.I")
     thing.readProblemInstanceFile()
     thing.parseProblemInstanceFile()

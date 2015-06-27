@@ -157,12 +157,12 @@ class verifier:
                     return "p"+str(len(self.SameAtomList)) #need the index of the most recent addition
     '''
     def assignAtom(self, i):
-        j = 1
-        for atomEquivClass in self.SameAtomList:
-            if str(i) in atomEquivClass:
-                return str(j)
+        j = 1 # start atom labels at 1
+        for atomEquivClass in self.SameAtomList: # each equivalence class is labeled by index
+            if str(i) in atomEquivClass: # if any equivalence class contains the subformula, 
+                return str(j) # then assign the representative atom label
             else:
-                self.SameAtomList.append(set([str(i)]))
+                self.SameAtomList.append(set([str(i)])) # unique atoms are given new labels; the next run of the if statement will succeed because the list was appended to within the loop
             j += 1
         
     def setUpSameAtomList(self):
@@ -185,10 +185,9 @@ class verifier:
                 self.SameAtomList.append(set())
                 self.SameAtomList[0].add(label1)
                 self.SameAtomList[0].add(label2)
-                continue
+                continue # this is where the first pair is added; want to continue to the next pair
   
             for atomEquivClass in self.SameAtomList:
-                print(atomEquivClass)
                 if label1 in atomEquivClass:
                     atomEquivClass.add(label2)
                 elif label2 in atomEquivClass:
@@ -218,15 +217,15 @@ class verifier:
                         return self.assignSymbol(self.instanceFileLines[j].split(" ")[1]) # if the predicate refers to an operator, then we need to find out which one!
     
     def nodeCreation(self, predicate, SiConnective, i):        
-        SiAsFirstOperand = self.findInInstanceFile(predicate)
-        ParentOfSi = str(self.instanceFileLines[SiAsFirstOperand].split(",")[0].split("(")[1])
+        SiAsOperand = self.findInInstanceFile(predicate)
+        ParentOfSi = str(self.instanceFileLines[SiAsOperand].split(",")[0].split("(")[1])
         self.syntaxTree.create_node(SiConnective, str(i), parent=ParentOfSi)
         
-    def makeSyntaxTreeNode(self, SiConnective, i):   
-        if self.findInInstanceFile(lambda x: ","+str(i)+"," in x):
+    def makeSyntaxTreeNode(self, SiConnective, i):  
+        if self.findInInstanceFile(lambda x: ","+str(i)+"," in x): #find where subformula i appears as second operand, and 
             self.nodeCreation(lambda x: ","+str(i)+"," in x, SiConnective, i)
         elif self.findInInstanceFile(lambda x: ","+str(i)+")" in x):                   
-            self.nodeCreation(lambda x: ","+str(i)+")" in x, SiConnective, i)
+            self.nodeCreation(lambda x: ","+str(i)+")" in x, SiConnective, i) 
         else:
             self.syntaxTree.create_node(SiConnective,str(i))
                 
@@ -252,7 +251,7 @@ class verifier:
         formula = ""
         bracketcount = 0
         atomLabelRegex = re.compile(r'\d+')
-        for x in self.syntaxTree.expand_tree(mode=Tree.DEPTH, reverse=True):
+        for x in self.syntaxTree.expand_tree(mode=Tree.DEPTH): #mode=Tree.DEPTH, reverse=True
             if atomLabelRegex.search(self.syntaxTree[x].tag) is not None:
                 tmp = self.syntaxTree[x].tag
                 while oplist.__len__()>0:

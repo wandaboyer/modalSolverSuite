@@ -7,7 +7,7 @@ Created on Jan. 12, 2015
 from treelib import Tree, Node
 import re
 
-class verifier:
+class verifier(object):
     '''
     This verifier object is intended to receive an Enfragmo instance file,
     and then to determine the original formula corresponding to that file.
@@ -143,19 +143,6 @@ class verifier:
         elif label == "Diamond":
             return "dia"
         
-    ''' def assignAtom(self, i): #this appears to be fucked.
-        if len(self.SameAtomList) == 0:
-            self.SameAtomList.append(str(i)) # Adds subformula label for the atom to the list
-            return "p"+str(1)
-        else:
-            for x in self.SameAtomList: #For each list of subformulas corresponding to same atom
-                #if x.contains(str(i)): #if we see the subformula is already in a list element, then we must have already realized that it refers to the same atom as another subformula
-                if str(i) in x:
-                    return "p"+str(x.index()+1) # return the label for the atom; need 1-indexed labeling
-                else:
-                    self.SameAtomList.append(str(i)) # since you haven't seen the atom before, add it as another label
-                    return "p"+str(len(self.SameAtomList)) #need the index of the most recent addition
-    '''
     def assignAtom(self, i):
         j = 1 # start atom labels at 1
         for atomEquivClass in self.SameAtomList: # each equivalence class is labeled by index
@@ -166,13 +153,6 @@ class verifier:
             j += 1
         
     def setUpSameAtomList(self):
-        '''startIndexAllAtoms = self.findInInstanceFile(lambda x: "PREDICATE Atom" in x) + 1
-        endIndexAllAtoms =  self.findInInstanceFile(lambda x: "PREDICATE And" in x)
-        allAtomPairs = self.instanceFileLines[startIndexAllAtoms:endIndexAllAtoms]
-        
-        for atom in allAtomPairs:
-            self.SameAtomList.append(set([atom.split("(")[-1].split(")")[0]]))'''
-        
         startIndexSameAtoms = self.findInInstanceFile(lambda x: "PREDICATE SameAtom" in x) + 1
         sameAtomPairs = self.instanceFileLines[startIndexSameAtoms:]
            
@@ -221,6 +201,14 @@ class verifier:
         ParentOfSi = str(self.instanceFileLines[SiAsOperand].split(",")[0].split("(")[1])
         self.syntaxTree.create_node(SiConnective, str(i), parent=ParentOfSi)
         
+        '''
+        #THIS CONFIRMS THAT THE OPERAND ORDER IS PRESERVED CORRECTLY WITHIN THE TREE; THE VISUAL IS WRONG! MY TRAVERSAL SEEMS SUSPECT.
+        print("children for subformula: "+ParentOfSi+"\n")
+        print([x for x in self.syntaxTree.is_branch(ParentOfSi)])
+        
+        print("\n")
+        '''
+        
     def makeSyntaxTreeNode(self, SiConnective, i):  
         if self.findInInstanceFile(lambda x: ","+str(i)+"," in x): #find where subformula i appears as second operand, and 
             self.nodeCreation(lambda x: ","+str(i)+"," in x, SiConnective, i)
@@ -240,6 +228,7 @@ class verifier:
         once as a second (or third, for binary operators) argument in a tuple.             
         '''
         self.syntaxTree = Tree()
+        
         for i in range(1, self.numTreeNodes+1):
             SiConnective = self.determineConnective(i)
             self.makeSyntaxTreeNode(SiConnective, i)
@@ -252,7 +241,7 @@ class verifier:
         bracketcount = 0
         atomLabelRegex = re.compile(r'\d+')
         for x in self.syntaxTree.expand_tree(mode=Tree.DEPTH): #mode=Tree.DEPTH, reverse=True
-            if atomLabelRegex.search(self.syntaxTree[x].tag) is not None:
+            if atomLabelRegex.search(self.syntaxTree[x].tag) is not None: # subformula we are looking at labels an atom
                 tmp = self.syntaxTree[x].tag
                 while oplist.__len__()>0:
                     currOp = oplist.pop()
@@ -261,19 +250,18 @@ class verifier:
                     elif currOp in ["~"]:
                         tmp = currOp + " " + tmp
                     elif currOp in ["v", "&", "->"]:
-                        tmp = "( " + tmp + " " + currOp  + " "
+                        tmp = "( " + tmp + " " + currOp + " "
                         bracketcount += 1
                         break
                 formula += tmp
-            elif self.syntaxTree[x].tag in ["~", "box", "dia"]:
+            elif self.syntaxTree[x].tag in ["~", "box", "dia", "v", "&", "->"]:
                 oplist.append(self.syntaxTree[x].tag)
-            elif self.syntaxTree[x].tag in ["v", "&", "->"]:
-                oplist.append(self.syntaxTree[x].tag)
+            
         while bracketcount > 0:
                     formula += " )"
                     bracketcount -= 1        
         print(formula)
-        #print(self.SameAtomList)
+        
 '''
 Testing
 '''     

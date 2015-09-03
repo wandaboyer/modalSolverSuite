@@ -85,7 +85,7 @@ class verifier(object):
         self.countNumAtoms()
         self.setUpSameAtomList() #NEW
         self.buildTree()
-        self.printFormula()
+        #self.printFormula()
      
     def numWorlds(self):
         return int(self.instanceFileLines[1][-2])
@@ -201,13 +201,13 @@ class verifier(object):
         ParentOfSi = str(self.instanceFileLines[SiAsOperand].split(",")[0].split("(")[1])
         self.syntaxTree.create_node(SiConnective, str(i), parent=ParentOfSi)
         
-        '''
+        
         #THIS CONFIRMS THAT THE OPERAND ORDER IS PRESERVED CORRECTLY WITHIN THE TREE; THE VISUAL IS WRONG! MY TRAVERSAL SEEMS SUSPECT.
         print("children for subformula: "+ParentOfSi+"\n")
         print([x for x in self.syntaxTree.is_branch(ParentOfSi)])
         
         print("\n")
-        '''
+        
         
     def makeSyntaxTreeNode(self, SiConnective, i):  
         if self.findInInstanceFile(lambda x: ","+str(i)+"," in x): #find where subformula i appears as second operand, and 
@@ -233,7 +233,33 @@ class verifier(object):
             SiConnective = self.determineConnective(i)
             self.makeSyntaxTreeNode(SiConnective, i)
           
-        self.syntaxTree.show()
+        #self.syntaxTree.show(reverse=True)
+        self.myShowTree(self.syntaxTree.get_node(self.syntaxTree.root))
+        
+        
+    def myShowTree(self, root):
+        '''
+        In-order depth-first traversal of syntax tree using deep recursion; first
+        layer of recursion receives root of tree, where each sub-layer receives
+        respectively the left child then the right child as roots of those subtrees
+        with visitation of the root node occurring in the middle.
+        '''
+        x=self.syntaxTree.children(root)
+        if len(self.syntaxTree.children(root)) == 2:
+            print("(")
+            self.myShowTree(self.syntaxTree.children(root)[0])
+            
+        print(" "+self.syntaxTree.get_node(root).tag+" ")
+        
+        if len(self.syntaxTree.children(root)) >= 1:
+            if len(self.syntaxTree.children(root)) == 1:
+                print("(")
+                self.myShowTree(self.syntaxTree.children(root)[0])
+            else:
+                self.myShowTree(self.syntaxTree.children(root)[1])
+            print(")")
+        
+        
         
     def printFormula(self):
         oplist = []
@@ -256,6 +282,7 @@ class verifier(object):
                 formula += tmp
             elif self.syntaxTree[x].tag in ["~", "box", "dia", "v", "&", "->"]:
                 oplist.append(self.syntaxTree[x].tag)
+                #oplist.reverse()
             
         while bracketcount > 0:
                     formula += " )"

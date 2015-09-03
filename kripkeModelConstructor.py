@@ -49,19 +49,52 @@ class kripkeModelConstructor(object):
     
     def readAccessible(self):
         '''
+        From the Enfragmo output, find the tuples dictating the accessibility 
+        relation. The result will appear as follows:
+            R = {(j,k), ..., (l,m)} with worlds j,k,l,m in W.
+        
+        In the future, with multiple modalities, need to be able to use first
+        argument of tuple to separate different agents from the others. 
+            That is, for each agent i: R_i = {(j,k),...(l,m)} will express their
+            accessibility relation with worlds j,k,l,m in W.
         '''
     def readValuation(self):
         '''
+        The valuation map is dictated by the TrueAt predicate, and will appear:
+        
+            <PredicateSymbol><BasicInfo Name='TrueAt'....
+                <DataSet Name= 'TrueAt' TypeSize= '2' >
+                    <ARow><IntValue Name= '1'/><IntValue Name= '1'/><True/></ARow>
+                    ...
+                </DataSet>
+            </PredicateInfo>
+            
+        The human-readable output will appear as:
+            V(w) = {p_i, ... p_j} for each world w in W and propositional atoms
+            p_i.
         '''
          
     def printKripkeModel(self):
         '''
-        Sends result to a file.
+        Take each of the components and print them out
         '''
         outputFile = open(self.ModelOutputDir+self.InstanceFilename+'-kripkeModel.txt', 'w+')
         
         for component in self.kripkeStructure:
-            outputFile.write("%s\n" % component.strip())  
+            outputFile.write("%s\n" % component.strip()) 
+
+            
+class KripkeStructure(object):
+    '''
+    The Kripke structure will be an instance of the KripkeStructure class, which
+    will have the following components:
+    
+    '''
+    def __init__(self):
+        '''
+        '''
+    
+ 
 '''
 Testing
 '''     
@@ -79,6 +112,6 @@ if __name__ == "__main__":
     if thing.readEnfragmoOutput():
         thing.parseEnfragmoOutput()
         thing.parseInstanceFile()
-        thing.printKripkeModel()
+        #thing.printKripkeModel()
     else:
         print("The formula described in instance file "+instanceFilename+".I was determined to be unsatisfiable by Enfragmo, and therefore doesn't have a satisfying Kripke structure.")

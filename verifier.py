@@ -83,9 +83,8 @@ class verifier(object):
         self.countNumTreeNodes()
         self.countNumTreeLeaves()
         self.countNumAtoms()
-        self.setUpSameAtomList() #NEW
+        self.setUpSameAtomList()
         self.buildTree()
-        #self.printFormula()
      
     def numWorlds(self):
         return int(self.instanceFileLines[1][-2])
@@ -199,15 +198,7 @@ class verifier(object):
     def nodeCreation(self, predicate, SiConnective, i):        
         SiAsOperand = self.findInInstanceFile(predicate)
         ParentOfSi = str(self.instanceFileLines[SiAsOperand].split(",")[0].split("(")[1])
-        self.syntaxTree.create_node(SiConnective, str(i), parent=ParentOfSi)
-        
-        
-        #THIS CONFIRMS THAT THE OPERAND ORDER IS PRESERVED CORRECTLY WITHIN THE TREE; THE VISUAL IS WRONG! MY TRAVERSAL SEEMS SUSPECT.
-        print("children for subformula: "+ParentOfSi+"\n")
-        print([x for x in self.syntaxTree.is_branch(ParentOfSi)])
-        
-        print("\n")
-        
+        self.syntaxTree.create_node(SiConnective, str(i), parent=ParentOfSi)        
         
     def makeSyntaxTreeNode(self, SiConnective, i):  
         if self.findInInstanceFile(lambda x: ","+str(i)+"," in x): #find where subformula i appears as second operand, and 
@@ -232,63 +223,33 @@ class verifier(object):
         for i in range(1, self.numTreeNodes+1):
             SiConnective = self.determineConnective(i)
             self.makeSyntaxTreeNode(SiConnective, i)
+        
+        self.myShowTree(self.syntaxTree, self.syntaxTree.get_node(self.syntaxTree.root))
           
-        #self.syntaxTree.show(reverse=True)
-        self.myShowTree(self.syntaxTree.get_node(self.syntaxTree.root))
-        
-        
-    def myShowTree(self, root):
+    def myShowTree(self, tree, root):
         '''
         In-order depth-first traversal of syntax tree using deep recursion; first
         layer of recursion receives root of tree, where each sub-layer receives
         respectively the left child then the right child as roots of those subtrees
         with visitation of the root node occurring in the middle.
         '''
-        x=self.syntaxTree.children(root)
-        if len(self.syntaxTree.children(root)) == 2:
-            print("(")
-            self.myShowTree(self.syntaxTree.children(root)[0])
-            
-        print(" "+self.syntaxTree.get_node(root).tag+" ")
+        rootNID = root.identifier
+        x=self.syntaxTree.children(rootNID)
         
-        if len(self.syntaxTree.children(root)) >= 1:
-            if len(self.syntaxTree.children(root)) == 1:
-                print("(")
-                self.myShowTree(self.syntaxTree.children(root)[0])
+        if len(self.syntaxTree.children(rootNID)) == 2:
+            print "(",
+            self.myShowTree(self.syntaxTree, self.syntaxTree.children(rootNID)[0])
+            
+        print self.syntaxTree.get_node(rootNID).tag,
+        
+        if len(self.syntaxTree.children(rootNID)) >= 1:
+            if len(self.syntaxTree.children(rootNID)) == 1:
+                print "(",
+                self.myShowTree(self.syntaxTree, self.syntaxTree.children(rootNID)[0])
             else:
-                self.myShowTree(self.syntaxTree.children(root)[1])
-            print(")")
-        
-        
-        
-    def printFormula(self):
-        oplist = []
-        formula = ""
-        bracketcount = 0
-        atomLabelRegex = re.compile(r'\d+')
-        for x in self.syntaxTree.expand_tree(mode=Tree.DEPTH): #mode=Tree.DEPTH, reverse=True
-            if atomLabelRegex.search(self.syntaxTree[x].tag) is not None: # subformula we are looking at labels an atom
-                tmp = self.syntaxTree[x].tag
-                while oplist.__len__()>0:
-                    currOp = oplist.pop()
-                    if currOp in ["box", "dia"]:
-                        tmp = currOp + " ( " + tmp + " )"
-                    elif currOp in ["~"]:
-                        tmp = currOp + " " + tmp
-                    elif currOp in ["v", "&", "->"]:
-                        tmp = "( " + tmp + " " + currOp + " "
-                        bracketcount += 1
-                        break
-                formula += tmp
-            elif self.syntaxTree[x].tag in ["~", "box", "dia", "v", "&", "->"]:
-                oplist.append(self.syntaxTree[x].tag)
-                #oplist.reverse()
-            
-        while bracketcount > 0:
-                    formula += " )"
-                    bracketcount -= 1        
-        print(formula)
-        
+                self.myShowTree(self.syntaxTree, self.syntaxTree.children(rootNID)[1])
+            print ")",    
+                 
 '''
 Testing
 '''     

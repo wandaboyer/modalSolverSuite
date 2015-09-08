@@ -6,7 +6,8 @@ Created on Jan. 12, 2015
 '''
 from treelib import Tree, Node
 import re
-
+from union_find import unionfind
+ 
 class verifier(object):
     '''
     This verifier object is intended to receive an Enfragmo instance file,
@@ -66,7 +67,8 @@ class verifier(object):
         Receives the name of the instance file to be verified, then uses this
         to initialize the corresponding tree structure 
         '''
-        self.SameAtomList = []
+        self.SameAtomList = unionfind.UnionFind()
+                
         self.filename = filename      
         
     def readProblemInstanceFile(self):
@@ -142,16 +144,28 @@ class verifier(object):
         elif label == "Diamond":
             return "dia"
         
-    def assignAtom(self, i):
+    '''def assignAtom(self, i):
         j = 1 # start atom labels at 1
         for atomEquivClass in self.SameAtomList: # each equivalence class is labeled by index
             if str(i) in atomEquivClass: # if any equivalence class contains the subformula, 
                 return str(j) # then assign the representative atom label
             else:
                 self.SameAtomList.append(set([str(i)])) # unique atoms are given new labels; the next run of the if statement will succeed because the list was appended to within the loop
-            j += 1
+            j += 1'''
+    def assignAtom(self, i):
+        #j = 1
+        for atomEquivClass in self.SameAtomList.get_sets(): # each equivalence class is labeled by index
+            if str(i) in atomEquivClass: # if any equivalence class contains the subformula, 
+                return self.SameAtomList.get_leader(str(i)) # then assign the representative atom label
+            else:
+                self.SameAtomList.insert(str(i)) 
+                #return self.SameAtomList.get_leader(str(i))# unique atoms are given new labels; the next run of the if statement will succeed because the list was appended to within the loop
+        # j += 1 
+            
+        #print("number of equivalence classes: " + str(self.SameAtomList.count_groups()))
+        #print(self.SameAtomList.get_sets())
         
-    def setUpSameAtomList(self):
+    '''def setUpSameAtomList(self):
         startIndexSameAtoms = self.findInInstanceFile(lambda x: "PREDICATE SameAtom" in x) + 1
         sameAtomPairs = self.instanceFileLines[startIndexSameAtoms:]
            
@@ -175,6 +189,22 @@ class verifier(object):
                     self.SameAtomList.append(set())
                     self.SameAtomList[-1].add(label1)
                     self.SameAtomList[-1].add(label2)
+        '''
+    def setUpSameAtomList(self):
+        '''
+        Using the Union Find datastructure, I will keep track of the equivalence
+        classes of SameAtoms and then supply a label based on the index of the
+        subset in which a subformula corresponding with an atom is contained.
+        '''
+        
+        startIndexSameAtoms = self.findInInstanceFile(lambda x: "PREDICATE SameAtom" in x) + 1
+        sameAtomPairs = self.instanceFileLines[startIndexSameAtoms:]
+        
+        for pair in sameAtomPairs:
+            tmp = pair.split(",")
+            label1 = tmp[0].split("(")[1]
+            label2 = tmp[1].split(")")[0]
+            self.SameAtomList.insert(label1, label2)
         
     def determineConnective(self, i):
         '''
@@ -237,18 +267,18 @@ class verifier(object):
         x=self.syntaxTree.children(rootNID)
         
         if len(self.syntaxTree.children(rootNID)) == 2:
-            print "(",
+            print("(", end=" ")
             self.myShowTree(self.syntaxTree, self.syntaxTree.children(rootNID)[0])
             
-        print self.syntaxTree.get_node(rootNID).tag,
+        print(self.syntaxTree.get_node(rootNID).tag, end=" ")
         
         if len(self.syntaxTree.children(rootNID)) >= 1:
             if len(self.syntaxTree.children(rootNID)) == 1:
-                print "(",
+                print("(", end=" ")
                 self.myShowTree(self.syntaxTree, self.syntaxTree.children(rootNID)[0])
             else:
                 self.myShowTree(self.syntaxTree, self.syntaxTree.children(rootNID)[1])
-            print ")",    
+            print(")", end=" ")   
                  
 '''
 Testing

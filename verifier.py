@@ -144,52 +144,13 @@ class verifier(object):
         elif label == "Diamond":
             return "dia"
         
-    '''def assignAtom(self, i):
-        j = 1 # start atom labels at 1
-        for atomEquivClass in self.SameAtomList: # each equivalence class is labeled by index
-            if str(i) in atomEquivClass: # if any equivalence class contains the subformula, 
-                return str(j) # then assign the representative atom label
-            else:
-                self.SameAtomList.append(set([str(i)])) # unique atoms are given new labels; the next run of the if statement will succeed because the list was appended to within the loop
-            j += 1'''
     def assignAtom(self, i):
-        #j = 1
         for atomEquivClass in self.SameAtomList.get_sets(): # each equivalence class is labeled by index
             if str(i) in atomEquivClass: # if any equivalence class contains the subformula, 
                 return self.SameAtomList.get_leader(str(i)) # then assign the representative atom label
             else:
-                self.SameAtomList.insert(str(i)) 
-                #return self.SameAtomList.get_leader(str(i))# unique atoms are given new labels; the next run of the if statement will succeed because the list was appended to within the loop
-        # j += 1 
-            
-        #print("number of equivalence classes: " + str(self.SameAtomList.count_groups()))
-        #print(self.SameAtomList.get_sets())
-        
-    '''def setUpSameAtomList(self):
-        startIndexSameAtoms = self.findInInstanceFile(lambda x: "PREDICATE SameAtom" in x) + 1
-        sameAtomPairs = self.instanceFileLines[startIndexSameAtoms:]
-           
-        for pair in sameAtomPairs:
-            tmp = pair.split(",")
-            label1 = tmp[0].split("(")[1]
-            label2 = tmp[1].split(")")[0]
-             
-            if not self.SameAtomList:
-                self.SameAtomList.append(set())
-                self.SameAtomList[0].add(label1)
-                self.SameAtomList[0].add(label2)
-                continue # this is where the first pair is added; want to continue to the next pair
-  
-            for atomEquivClass in self.SameAtomList:
-                if label1 in atomEquivClass:
-                    atomEquivClass.add(label2)
-                elif label2 in atomEquivClass:
-                    atomEquivClass.add(label1)
-                else:
-                    self.SameAtomList.append(set())
-                    self.SameAtomList[-1].add(label1)
-                    self.SameAtomList[-1].add(label2)
-        '''
+                self.SameAtomList.insert(str(i))
+                
     def setUpSameAtomList(self):
         '''
         Using the Union Find datastructure, I will keep track of the equivalence
@@ -204,16 +165,16 @@ class verifier(object):
             tmp = pair.split(",")
             label1 = tmp[0].split("(")[1]
             label2 = tmp[1].split(")")[0]
-            self.SameAtomList.insert(label1, label2)
+            self.SameAtomList.insert(label1, label2)     
         
     def determineConnective(self, i):
         '''
-            Each subformula label is guaranteed to be the first argument of some
-            tuple; either it will correspond with an atom, the only argument,
-            or it will correspond with the main connective of a unary 
-            (i.e. negation, box, or diamond) or binary (i.e. conjunction or 
-            disjunction) subformula.
-            '''
+        Each subformula label is guaranteed to be the first argument of some
+        tuple; either it will correspond with an atom, the only argument,
+        or it will correspond with the main connective of a unary 
+        (i.e. negation, box, or diamond) or binary (i.e. conjunction or 
+        disjunction) subformula.
+        '''
         if self.findInInstanceFile(lambda x: "("+str(i)+")" in x):
             return self.assignAtom(i)
         if self.findInInstanceFile(lambda x: "("+str(i)+"," in x):

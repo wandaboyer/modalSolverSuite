@@ -54,16 +54,16 @@ class formulaConversion(object):
         the first place!
         '''
         self.benchmarkFileLines = [re.sub(r'(p)(\d+)', r'\2 ', formula) for formula in self.benchmarkFileLines]
-        
+        #'box':'box ', 'dia':'dia ', , 'false ':' false'
     def correctSpacing(self):
-        self.benchmarkFileLines = [self.multiple_replace(formula, {'box':'box ', 'dia':'dia ', '~':'~ ', '(':'( ', ')':') ', ' ->':'->', ' &':'&', ' v':'v'}) for formula in self.benchmarkFileLines]
+        self.benchmarkFileLines = [self.multiple_replace(formula, {'box':'box ', 'dia':'dia ','false':'false ','~':'~ ', '(':'( ', ')':') ', ' ->':'->', ' &':'&', ' v':'v', ' <->':'<->'}) for formula in self.benchmarkFileLines]
         
     def multiple_replace(self, string, rep_dict):
         pattern = re.compile("|".join([re.escape(k) for k in rep_dict.keys()]), re.M)
         return pattern.sub(lambda x: rep_dict[x.group(0)], string)
     
     def printNewBenchmarkFile(self):
-        outputFile = open(self.outputDir+self.fileName+'-Modified.txt', 'w+')
+        outputFile = open(self.outputDir+'Modified-'+self.fileName, 'w+')
         
         for formula in self.benchmarkFileLines:
             outputFile.write("%s\n" % formula.strip())

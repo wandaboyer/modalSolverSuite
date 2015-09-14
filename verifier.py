@@ -139,6 +139,8 @@ class verifier(object):
             return "~"
         elif label == "Implication":
             return "->"
+        elif label == "Biconditional":
+            return "<->"
         elif label == "Box":
             return "box"
         elif label == "Diamond":
@@ -175,7 +177,12 @@ class verifier(object):
         (i.e. negation, box, or diamond) or binary (i.e. conjunction or 
         disjunction) subformula.
         '''
-        if self.findInInstanceFile(lambda x: "("+str(i)+")" in x):
+        SiThing=self.findInInstanceFile(lambda x: "("+str(i)+")" in x)
+        if SiThing:
+            for k in range(SiThing, 0, -1): # go back in the file until you can find out what predicate we're dealing with
+                if self.instanceFileLines[k].split(" ")[0] == "PREDICATE":
+                    if self.instanceFileLines[k].split(" ")[1] == "Falsum":
+                        return "false"
             return self.assignAtom(i)
         if self.findInInstanceFile(lambda x: "("+str(i)+"," in x):
             SiAsMainConnective = self.findInInstanceFile(lambda x: "("+str(i)+"," in x)
@@ -215,7 +222,7 @@ class verifier(object):
             SiConnective = self.determineConnective(i)
             self.makeSyntaxTreeNode(SiConnective, i)
         
-        self.myShowTree(self.syntaxTree, self.syntaxTree.get_node(self.syntaxTree.root))
+        #self.myShowTree(self.syntaxTree, self.syntaxTree.get_node(self.syntaxTree.root))
           
     def myShowTree(self, tree, root):
         '''
@@ -247,6 +254,10 @@ Testing
 if __name__ == "__main__":
     #thing = verifier("/home/wanda/Documents/Dropbox/Research/Final Project/Instance Files/needsNonReflexiveModel.I")
     #thing = verifier("/home/wanda/Documents/Dropbox/Research/Final Project/Instance Files/implication1.I")
-    thing = verifier("/home/wanda/Documents/Dropbox/Research/Final Project/Instance Files/multipleSameAtoms.I")
+    #thing = verifier("/home/wanda/Documents/Dropbox/Research/Final Project/Instance Files/multipleSameAtoms.I")
+    thing = verifier("/home/wanda/Documents/Dropbox/Research/Final Project/Instance Files/falsumTester.I")
+    #thing = verifier("/home/wanda/Documents/Dropbox/Research/Final Project/Instance Files/biconditionalTester.I")
+    
     thing.readProblemInstanceFile()
     thing.parseProblemInstanceFile()
+    thing.myShowTree(thing.syntaxTree, thing.syntaxTree.get_node(thing.syntaxTree.root))

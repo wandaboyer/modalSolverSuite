@@ -34,10 +34,11 @@ class kripkeModelConstructor(object):
     def parseInstanceFile(self):
         verifierObject = verifier(self.InstanceFilepath)
         verifierObject.readProblemInstanceFile()
+        verifierObject.parseProblemInstanceFile()
         self.numDistinctAtoms = verifierObject.countNumAtoms()
         self.numWorlds = verifierObject.numWorlds()
         
-        #print(str(self.numDistinctAtoms) + " " + str(self.numWorlds))
+        print(str(self.numDistinctAtoms) + " " + str(self.numWorlds))
         self.worldSet = [str(i) for i in range(1, self.numWorlds+1)]
         self.atomSet = ["p"+str(i) for i in range(1, self.numDistinctAtoms+1)]
         self.atomicSubformulas = verifierObject.SameAtomList
@@ -100,18 +101,21 @@ Testing
 '''     
 if __name__ == "__main__":
     instanceFileDir = "/home/wanda/Documents/Dropbox/Research/Final Project/Instance Files/"
-    instanceFilename = "needsNonReflexiveModel"
+    #instanceFilename = "needsNonReflexiveModel"
+    instanceFilename = "multipleSameAtoms"
     
     EnfragmoOutputDir = "/home/wanda/Documents/Dropbox/Research/Final Project/Output/"
-    EnfragmoOutputFilename = "needsNonReflexiveModelOut"
+    #EnfragmoOutputFilename = "needsNonReflexiveModelOut"
+    EnfragmoOutputFilename = instanceFilename+"Out"
     
     ModelOutputDir = EnfragmoOutputDir+"Kripke Models/"
     
-    thing = kripkeModelConstructor(instanceFileDir+instanceFilename+'.I', instanceFilename, EnfragmoOutputDir+EnfragmoOutputFilename+'.xml', EnfragmoOutputFilename, ModelOutputDir)
+    thing = kripkeModelConstructor(instanceFileDir+instanceFilename+'.I', instanceFilename, EnfragmoOutputDir+EnfragmoOutputFilename+'.txt', EnfragmoOutputFilename, ModelOutputDir)
     
     if thing.readEnfragmoOutput():
-        thing.parseEnfragmoOutput()
         thing.parseInstanceFile()
+        thing.parseEnfragmoOutput()
+        
         #thing.printKripkeModel()
     else:
         print("The formula described in instance file "+instanceFilename+".I was determined to be unsatisfiable by Enfragmo, and therefore doesn't have a satisfying Kripke structure.")

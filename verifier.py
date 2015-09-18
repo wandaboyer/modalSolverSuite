@@ -5,8 +5,11 @@ Created on Jan. 12, 2015
 @contact: wbkboyer@gmail.com
 '''
 from treelib import Tree, Node
+
 import re
 from union_find import unionfind
+ 
+from reuseableCode import findInFile
  
 class verifier(object):
     '''
@@ -123,12 +126,12 @@ class verifier(object):
                            (self.instanceFileLines.index("PREDICATE SameAtom")+1))))
         return self.numAtoms        
             
-    def findInInstanceFile(self, predicate):
+    '''def findInInstanceFile(self, predicate):
         i = 0
         for x in self.instanceFileLines:
             if predicate(x):
                     return i
-            i+=1
+            i+=1'''
       
     def assignSymbol(self, label):
         if label == "And":
@@ -145,14 +148,17 @@ class verifier(object):
             return "box"
         elif label == "Diamond":
             return "dia"
-        
+    
     def assignAtom(self, i):
+        #j=1
         for atomEquivClass in self.SameAtomList.get_sets(): # each equivalence class is labeled by index
             if str(i) in atomEquivClass: # if any equivalence class contains the subformula, 
                 return self.SameAtomList.get_leader(str(i)) # then assign the representative atom label
+                #return j
             else:
                 self.SameAtomList.insert(str(i))
-                
+            #j = j+1
+        
     def setUpSameAtomList(self):
         '''
         Using the Union Find datastructure, I will keep track of the equivalence
@@ -160,7 +166,7 @@ class verifier(object):
         subset in which a subformula corresponding with an atom is contained.
         '''
         
-        startIndexSameAtoms = self.findInInstanceFile(lambda x: "PREDICATE SameAtom" in x) + 1
+        startIndexSameAtoms = findInFile(self.instanceFileLines, lambda x: "PREDICATE SameAtom" in x) + 1
         sameAtomPairs = self.instanceFileLines[startIndexSameAtoms:]
         
         for pair in sameAtomPairs:
@@ -177,15 +183,15 @@ class verifier(object):
         (i.e. negation, box, or diamond) or binary (i.e. conjunction or 
         disjunction) subformula.
         '''
-        SiThing=self.findInInstanceFile(lambda x: "("+str(i)+")" in x)
+        SiThing=findInFile(self.instanceFileLines, lambda x: "("+str(i)+")" in x)
         if SiThing:
             for k in range(SiThing, 0, -1): # go back in the file until you can find out what predicate we're dealing with
                 if self.instanceFileLines[k].split(" ")[0] == "PREDICATE":
                     if self.instanceFileLines[k].split(" ")[1] == "Falsum":
                         return "false"
             return self.assignAtom(i)
-        if self.findInInstanceFile(lambda x: "("+str(i)+"," in x):
-            SiAsMainConnective = self.findInInstanceFile(lambda x: "("+str(i)+"," in x)
+        if findInFile(self.instanceFileLines, lambda x: "("+str(i)+"," in x):
+            SiAsMainConnective = findInFile(self.instanceFileLines, lambda x: "("+str(i)+"," in x)
             for j in range(SiAsMainConnective, 0, -1): # go back in the file until you can find out what predicate we're dealing with
                 if self.instanceFileLines[j].split(" ")[0] == "PREDICATE":
                     if self.instanceFileLines[j].split(" ")[1] == "SameAtom": # if there are no tuples under SameAtom, then this isn't reached due to SiAsMainConnective
@@ -194,14 +200,14 @@ class verifier(object):
                         return self.assignSymbol(self.instanceFileLines[j].split(" ")[1]) # if the predicate refers to an operator, then we need to find out which one!
     
     def nodeCreation(self, predicate, SiConnective, i):        
-        SiAsOperand = self.findInInstanceFile(predicate)
+        SiAsOperand = findInFile(self.instanceFileLines, predicate)
         ParentOfSi = str(self.instanceFileLines[SiAsOperand].split(",")[0].split("(")[1])
         self.syntaxTree.create_node(SiConnective, str(i), parent=ParentOfSi)        
         
     def makeSyntaxTreeNode(self, SiConnective, i):  
-        if self.findInInstanceFile(lambda x: ","+str(i)+"," in x): #find where subformula i appears as second operand, and 
+        if findInFile(self.instanceFileLines, lambda x: ","+str(i)+"," in x): #find where subformula i appears as second operand, and 
             self.nodeCreation(lambda x: ","+str(i)+"," in x, SiConnective, i)
-        elif self.findInInstanceFile(lambda x: ","+str(i)+")" in x):                   
+        elif findInFile(self.instanceFileLines, lambda x: ","+str(i)+")" in x):                   
             self.nodeCreation(lambda x: ","+str(i)+")" in x, SiConnective, i) 
         else:
             self.syntaxTree.create_node(SiConnective,str(i))
@@ -254,10 +260,10 @@ Testing
 if __name__ == "__main__":
     #thing = verifier("/home/wanda/Documents/Dropbox/Research/Final Project/Instance Files/needsNonReflexiveModel.I")
     #thing = verifier("/home/wanda/Documents/Dropbox/Research/Final Project/Instance Files/implication1.I")
-    #thing = verifier("/home/wanda/Documents/Dropbox/Research/Final Project/Instance Files/multipleSameAtoms.I")
-    thing = verifier("/home/wanda/Documents/Dropbox/Research/Final Project/Instance Files/falsumTester.I")
+    thing = verifier("/home/wanda/Documents/Dropbox/Research/Final Project/Instance Files/multipleSameAtoms.I")
+    #thing = verifier("/home/wanda/Documents/Dropbox/Research/Final Project/Instance Files/falsumTester.I")
     #thing = verifier("/home/wanda/Documents/Dropbox/Research/Final Project/Instance Files/biconditionalTester.I")
-    
+
     thing.readProblemInstanceFile()
     thing.parseProblemInstanceFile()
     thing.myShowTree(thing.syntaxTree, thing.syntaxTree.get_node(thing.syntaxTree.root))

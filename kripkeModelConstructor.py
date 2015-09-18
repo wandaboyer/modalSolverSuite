@@ -40,21 +40,22 @@ class kripkeModelConstructor(object):
         self.KM.setValuation(self.readValuation())
         self.KM.setAccessible(self.readAccessible())
         
-    
     def readAccessible(self):
         '''
         From the Enfragmo output, find the tuples dictating the accessibility 
         relation. The result will be stored in a dictionary, with the first
         member of the tuple appearing as the key, and the worlds it relates to
         will appear in a list as the value:
-            R = {j: [k,l], ..., m: [n,o]} with worlds j, k, l, m, n, o in W.
+            R = {j: (k,l), ..., m: (n,o)} with worlds j, k, l, m, n, o in W.
         
         In the future, with multiple modalities, need to be able to use first
         argument of tuple to separate different agents from the others. 
             That is, for each agent i: R_i = {(j,k),...(l,m)} will express their
             accessibility relation with worlds j,k,l,m in W.
         '''
-        return extractTuples(self.EnfragmoOutputFileLines,"TrueAt")
+        tup = extractTuples(self.EnfragmoOutputFileLines,"Accessible")
+        print(tup)
+        return tup
         
     def readValuation(self):
         '''
@@ -67,37 +68,28 @@ class kripkeModelConstructor(object):
                 </DataSet>
             </PredicateInfo>
             
-        The human-readable output will appear as:
-            V(w) = {p_i, ... p_j} for each world w in W and propositional atoms
-            p_i.
-        Implemented through the use of a dictionary (world will be the key, and
-        a list of propositional atoms true at that world will be the value).
+        The data will be stored in a defaultdict, where the world will be the key,
+        and a list of propositional atoms true at that world will be the value:
+            R = {w_1: (k,l), ..., w_k: (n,o)} for each world w_i in W and
+            propositional atom.
         '''
-        dictionary = extractTuples(self.EnfragmoOutputFileLines, "Accessible")
+        dictionary = extractTuples(self.EnfragmoOutputFileLines, "TrueAt")
         print(dictionary)
         return dictionary
-    
     
     def parseInstanceFile(self):
         verifierObject = verifier(self.InstanceFilepath)
         verifierObject.readProblemInstanceFile()
         verifierObject.parseProblemInstanceFile()
         self.numWorlds = verifierObject.numWorlds()
-        
-        #print(str(self.numDistinctAtoms) + " " + str(self.numWorlds))
         self.KM.setW([str(i) for i in range(1, self.numWorlds+1)])
-        #self.KM.setPropAtoms([verifierObject.SameAtomList.get_leader(equivClass) for equivClass in verifierObject.SameAtomList])
-        #print(self.atomicSubformulas)
-    
-         
+   
     def printKripkeModel(self):
         '''
         Take each of the components and print them out
         '''
         outputFile = open(self.ModelOutputDir+self.InstanceFilename+'-kripkeModel.txt', 'w+')
         self.KM.displayKripkeStructure(outputFile)
-        #for component in self.kripkeStructure:
-        #    outputFile.write("%s\n" % component.strip()) 
         
            
 class KripkeStructure(object):
@@ -114,15 +106,11 @@ class KripkeStructure(object):
         #print(self.__valuationMap)
       
     def setW(self, worldList):
-        '''
-        Take the dict of the valuation map to label each world
-        '''
-        self.__worldList = worldList
-        for world in self.__worldList:
+        for world in worldList:
             self.graph.node(world, {'label': str(self.__valuationMap.get(world))})
  
     def setAccessible(self,accessibilityDict):
-        self.__accessibilityRelation = accessibilityDict
+        print(accessibilityDict)
         for key, relatesTo in accessibilityDict.iteritems():
             for world in relatesTo:
                 self.graph.edge(key,world)

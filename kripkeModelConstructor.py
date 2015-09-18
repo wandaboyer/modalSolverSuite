@@ -53,9 +53,7 @@ class kripkeModelConstructor(object):
             That is, for each agent i: R_i = {(j,k),...(l,m)} will express their
             accessibility relation with worlds j,k,l,m in W.
         '''
-        tup = extractTuples(self.EnfragmoOutputFileLines,"Accessible")
-        print(tup)
-        return tup
+        return extractTuples(self.EnfragmoOutputFileLines,"Accessible")
         
     def readValuation(self):
         '''
@@ -73,9 +71,7 @@ class kripkeModelConstructor(object):
             R = {w_1: (k,l), ..., w_k: (n,o)} for each world w_i in W and
             propositional atom.
         '''
-        dictionary = extractTuples(self.EnfragmoOutputFileLines, "TrueAt")
-        print(dictionary)
-        return dictionary
+        return extractTuples(self.EnfragmoOutputFileLines, "TrueAt")
     
     def parseInstanceFile(self):
         verifierObject = verifier(self.InstanceFilepath)
@@ -88,7 +84,8 @@ class kripkeModelConstructor(object):
         '''
         Take each of the components and print them out
         '''
-        outputFile = open(self.ModelOutputDir+self.InstanceFilename+'-kripkeModel.txt', 'w+')
+        #outputFile = open(self.ModelOutputDir+self.InstanceFilename+'-kripkeModel.txt', 'w+')
+        outputFile = self.ModelOutputDir+self.InstanceFilename+'-kripkeModel'
         self.KM.displayKripkeStructure(outputFile)
         
            
@@ -103,31 +100,29 @@ class KripkeStructure(object):
         
     def setValuation(self, valuationDict):
         self.__valuationMap = valuationDict
-        #print(self.__valuationMap)
       
     def setW(self, worldList):
         for world in worldList:
-            self.graph.node(world, {'label': str(self.__valuationMap.get(world))})
+            self.graph.node(str(world))#, {'label': str(self.__valuationMap.get(world))})
  
     def setAccessible(self,accessibilityDict):
-        print(accessibilityDict)
-        for key, relatesTo in accessibilityDict.iteritems():
+        for key, relatesTo in accessibilityDict.items():
             for world in relatesTo:
-                self.graph.edge(key,world)
+                self.graph.edge(str(key),str(world))
     
     def displayKripkeStructure(self, outputFile):
         print(self.graph.source)
-        self.graph.render(outputFile)
+        self.graph.render(filename=outputFile)
             
 '''
 Testing
 '''     
 if __name__ == "__main__":
-    instanceFileDir = "/home/wanda/Documents/Dropbox/Research/Final Project/Instance Files/"
+    instanceFileDir = r"/home/wanda/Documents/Dropbox/Research/Final Project/Instance Files/"
     #instanceFilename = "needsNonReflexiveModel"
     instanceFilename = "multipleSameAtoms"
     
-    EnfragmoOutputDir = "/home/wanda/Documents/Dropbox/Research/Final Project/Output/"
+    EnfragmoOutputDir = r"/home/wanda/Documents/Dropbox/Research/Final Project/Output/"
     #EnfragmoOutputFilename = "needsNonReflexiveModelOut"
     EnfragmoOutputFilename = instanceFilename+"Out"
     

@@ -123,11 +123,10 @@ Testing
 '''     
 if __name__ == "__main__":
     instanceFileDir = r"/home/wanda/Documents/Dropbox/Research/Final Project/Instance Files/"
-    #instanceFilename = "needsNonReflexiveModel"
-    instanceFilename = "multipleSameAtoms"
+    instanceFilename = "needsNonReflexiveModel"
+    #instanceFilename = "multipleSameAtoms"
     
     EnfragmoOutputDir = r"/home/wanda/Documents/Dropbox/Research/Final Project/Output/"
-    #EnfragmoOutputFilename = "needsNonReflexiveModelOut"
     EnfragmoOutputFilename = instanceFilename+"Out"
     
     ModelOutputDir = EnfragmoOutputDir+"Kripke Models/"

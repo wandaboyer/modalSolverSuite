@@ -143,25 +143,12 @@ class verifier(object):
             return "dia"
     
     def assignAtom(self, i):
-        
-        '''for atomEquivClass in self.SameAtomList.get_sets(): # each equivalence class is labeled by index
-            if str(i) in atomEquivClass: # if any equivalence class contains the subformula, 
-                #print(atomEquivClass)
-                return self.SameAtomList.get_leader(str(i)) # then assign the representative atom label
-            else:
-                print(i)
-                #print(self.SameAtomList)
-                self.SameAtomList.insert(str(i))
-                print(atomEquivClass)
-                #print(self.SameAtomList)
-            #j = j+1'''
         for atomEquivClass in self.SameAtomList.get_sets():
-            if str(i) in atomEquivClass: # if any equivalence class contains the subformula, 
-                return self.SameAtomList.get_leader(str(i)) # then assign the representative atom label
+            if str(i) in atomEquivClass:
+                return self.SameAtomList.get_leader(str(i))
             
         self.SameAtomList.insert(str(i))
         return self.SameAtomList.get_leader(str(i))
-        #for set in self.SameAtomList.get_sets():
             
     def setUpSameAtomList(self):
         '''
@@ -177,8 +164,8 @@ class verifier(object):
             tmp = pair.split(",")
             label1 = tmp[0].split("(")[1]
             label2 = tmp[1].split(")")[0]
-            self.SameAtomList.insert(label1, label2)     
-        #print(self.SameAtomList)
+            self.SameAtomList.insert(label1, label2)
+            
     def determineConnective(self, i):
         '''
         Each subformula label is guaranteed to be the first argument of some
@@ -231,8 +218,6 @@ class verifier(object):
         for i in range(1, self.numTreeNodes+1):
             SiConnective = self.determineConnective(i)
             self.makeSyntaxTreeNode(SiConnective, i)
-        
-        #self.myShowTree(self.syntaxTree, self.syntaxTree.get_node(self.syntaxTree.root))
           
     def myShowTree(self, tree, root):
         '''

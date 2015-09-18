@@ -66,10 +66,10 @@ class kripkeModelConstructor(object):
                 </DataSet>
             </PredicateInfo>
             
-        The data will be stored in a defaultdict, where the world will be the key,
-        and a list of propositional atoms true at that world will be the value:
-            R = {w_1: (k,l), ..., w_k: (n,o)} for each world w_i in W and
-            propositional atom.
+        The data will be stored in a defaultdict, where the subformula will be the key,
+        and a list of worlds that subformula is true at will be the value:
+            R = {s_1: (k,l), ..., s_k: (n,o)} for each subformula s_i and propositional
+            atoms k,l,n,o,...
         '''
         return extractTuples(self.EnfragmoOutputFileLines, "TrueAt")
     
@@ -78,13 +78,12 @@ class kripkeModelConstructor(object):
         verifierObject.readProblemInstanceFile()
         verifierObject.parseProblemInstanceFile()
         self.numWorlds = verifierObject.numWorlds()
-        self.KM.setW([str(i) for i in range(1, self.numWorlds+1)])
-   
+        self.KM.setW(verifierObject.SameAtomList,[str(i) for i in range(1, self.numWorlds+1)])
+        
     def printKripkeModel(self):
         '''
         Take each of the components and print them out
         '''
-        #outputFile = open(self.ModelOutputDir+self.InstanceFilename+'-kripkeModel.txt', 'w+')
         outputFile = self.ModelOutputDir+self.InstanceFilename+'-kripkeModel'
         self.KM.displayKripkeStructure(outputFile)
         
@@ -101,9 +100,14 @@ class KripkeStructure(object):
     def setValuation(self, valuationDict):
         self.__valuationMap = valuationDict
       
-    def setW(self, worldList):
+    def setW(self, atoms, worldList):
         for world in worldList:
-            self.graph.node(str(world))#, {'label': str(self.__valuationMap.get(world))})
+            valuationLabel = set()
+            for subformula in self.__valuationMap.get(world):
+                if subformula in [key for key in atoms.leader]:
+                    valuationLabel.add(atoms.get_leader(subformula)) 
+            valuationLabel = ', '.join(valuationLabel)
+            self.graph.node(str(world), label=valuationLabel,xlabel='w'+str(world))
  
     def setAccessible(self,accessibilityDict):
         for key, relatesTo in accessibilityDict.items():

@@ -71,7 +71,7 @@ class verifier(object):
         to initialize the corresponding tree structure 
         '''
         self.SameAtomList = unionfind.UnionFind()
-                
+
         self.filename = filename      
         
     def readProblemInstanceFile(self):
@@ -125,13 +125,6 @@ class verifier(object):
                            (len(self.instanceFileLines) - \
                            (self.instanceFileLines.index("PREDICATE SameAtom")+1))))
         return self.numAtoms        
-            
-    '''def findInInstanceFile(self, predicate):
-        i = 0
-        for x in self.instanceFileLines:
-            if predicate(x):
-                    return i
-            i+=1'''
       
     def assignSymbol(self, label):
         if label == "And":
@@ -150,15 +143,26 @@ class verifier(object):
             return "dia"
     
     def assignAtom(self, i):
-        #j=1
-        for atomEquivClass in self.SameAtomList.get_sets(): # each equivalence class is labeled by index
+        
+        '''for atomEquivClass in self.SameAtomList.get_sets(): # each equivalence class is labeled by index
+            if str(i) in atomEquivClass: # if any equivalence class contains the subformula, 
+                #print(atomEquivClass)
+                return self.SameAtomList.get_leader(str(i)) # then assign the representative atom label
+            else:
+                print(i)
+                #print(self.SameAtomList)
+                self.SameAtomList.insert(str(i))
+                print(atomEquivClass)
+                #print(self.SameAtomList)
+            #j = j+1'''
+        for atomEquivClass in self.SameAtomList.get_sets():
             if str(i) in atomEquivClass: # if any equivalence class contains the subformula, 
                 return self.SameAtomList.get_leader(str(i)) # then assign the representative atom label
-                #return j
-            else:
-                self.SameAtomList.insert(str(i))
-            #j = j+1
-        
+            
+        self.SameAtomList.insert(str(i))
+        return self.SameAtomList.get_leader(str(i))
+        #for set in self.SameAtomList.get_sets():
+            
     def setUpSameAtomList(self):
         '''
         Using the Union Find datastructure, I will keep track of the equivalence
@@ -174,7 +178,7 @@ class verifier(object):
             label1 = tmp[0].split("(")[1]
             label2 = tmp[1].split(")")[0]
             self.SameAtomList.insert(label1, label2)     
-        
+        #print(self.SameAtomList)
     def determineConnective(self, i):
         '''
         Each subformula label is guaranteed to be the first argument of some

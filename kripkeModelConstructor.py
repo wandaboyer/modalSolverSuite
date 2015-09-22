@@ -15,14 +15,14 @@ class kripkeModelConstructor(object):
     Kripke model found, if one exists, or indicates that the formula is UNSAT.
     '''
 
-    def __init__(self, InstanceFilepath, InstanceFilename, EnfragmoOutputFilepath, EnfragmoOutputFilename, ModelOutputDir):
+    def __init__(self, InstanceFilepath, InstanceFilename, EnfragmoOutputFilepath, EnfragmoOutputFileName, ModelOutputDir):
         '''
         Receives the name of the modal benchmark formula file to be converted.
         '''
         self.InstanceFilepath = InstanceFilepath
         self.InstanceFilename = InstanceFilename
         self.EnfragmoOutputFilepath = EnfragmoOutputFilepath
-        self.EnfragmoOutputFilename = EnfragmoOutputFilename
+        self.EnfragmoOutputFilename = EnfragmoOutputFileName
         self.ModelOutputDir = ModelOutputDir
         
         self.KM = KripkeStructure()
@@ -71,7 +71,7 @@ class kripkeModelConstructor(object):
             R = {s_1: (k,l), ..., s_k: (n,o)} for each subformula s_i and propositional
             atoms k,l,n,o,...
         '''
-        return extractTuples(self.EnfragmoOutputFileLines, "TrueAt")
+        return extractTuples(self.EnfragmoOutputFileLines, "TrueAt") # key is world, entry is list of subformulas true at that world
     
     def parseInstanceFile(self):
         verifierObject = verifier(self.InstanceFilepath)
@@ -102,12 +102,12 @@ class KripkeStructure(object):
       
     def setW(self, atoms, worldList):
         for world in worldList:
-            valuationLabel = set()
-            for subformula in self.__valuationMap.get(world):
-                if subformula in [key for key in atoms.leader]:
-                    valuationLabel.add(atoms.get_leader(subformula)) 
-            valuationLabel = ', '.join(valuationLabel)
-            self.graph.node(str(world), label=valuationLabel,xlabel='w'+str(world))
+            valuationLabel = set() # each world has a set of proposition letters true at that world
+            for subformula in self.__valuationMap.get(world): # key is world, so from that list of subformulas
+                if subformula in [key for key in atoms.leader]: # if the subformula corresponds with an atom
+                    valuationLabel.add(atoms.get_leader(subformula)) # add that atom to the set of propositions true at the world
+            valuationLabel = ', '.join(valuationLabel) # reassign valuationLabel to be a string which is concatenation of elements of the former set, namely a string of all atoms true at a world
+            self.graph.node(str(world), label=valuationLabel,xlabel='w'+str(world)) #xlabel gives us the world label, label gives us the atoms true at the world.
  
     def setAccessible(self,accessibilityDict):
         for key, relatesTo in accessibilityDict.items():
@@ -115,7 +115,7 @@ class KripkeStructure(object):
                 self.graph.edge(str(key),str(world))
     
     def displayKripkeStructure(self, outputFile):
-        print(self.graph.source)
+        print(self.graph.source) # doesn't render the string of atoms correctly, but does so in the resulting picture.
         self.graph.render(filename=outputFile)
             
 '''
@@ -123,19 +123,20 @@ Testing
 '''     
 if __name__ == "__main__":
     instanceFileDir = r"/home/wanda/Documents/Dropbox/Research/Final Project/Instance Files/"
-    instanceFilename = "needsNonReflexiveModel"
-    #instanceFilename = "multipleSameAtoms"
+    #instanceFileName = "needsNonReflexiveModel"
+    #instanceFileName = "multipleSameAtoms"
+    instanceFileName = "falsumTester"
     
     EnfragmoOutputDir = r"/home/wanda/Documents/Dropbox/Research/Final Project/Output/"
-    EnfragmoOutputFilename = instanceFilename+"Out"
+    EnfragmoOutputFileName = instanceFileName+"Out"
     
     ModelOutputDir = EnfragmoOutputDir+"Kripke Models/"
     
-    thing = kripkeModelConstructor(instanceFileDir+instanceFilename+'.I', instanceFilename, EnfragmoOutputDir+EnfragmoOutputFilename+'.txt', EnfragmoOutputFilename, ModelOutputDir)
+    thing = kripkeModelConstructor(instanceFileDir+instanceFileName+'.I', instanceFileName, EnfragmoOutputDir+EnfragmoOutputFileName+'.txt', EnfragmoOutputFileName, ModelOutputDir)
     
     if thing.readEnfragmoOutput():
         thing.parseEnfragmoOutput()
         thing.parseInstanceFile()
         thing.printKripkeModel()
     else:
-        print("The formula described in instance file "+instanceFilename+".I was determined to be unsatisfiable by Enfragmo, and therefore doesn't have a satisfying Kripke structure.")
+        print("The formula described in instance file "+instanceFileName+".I was determined to be unsatisfiable by Enfragmo, and therefore doesn't have a satisfying Kripke structure.")

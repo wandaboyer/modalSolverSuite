@@ -6,7 +6,7 @@ Created on Jan. 12, 2015
 '''
 from treelib import Tree, Node
 
-import re
+import re, plac
 from union_find import unionfind
  
 from reuseableCode import findInFile
@@ -245,14 +245,17 @@ class verifier(object):
                  
 '''
 Testing
-'''     
-if __name__ == "__main__":
-    #thing = verifier("/home/wanda/Documents/Dropbox/Research/Final Project/Instance Files/needsNonReflexiveModel.I")
-    #thing = verifier("/home/wanda/Documents/Dropbox/Research/Final Project/Instance Files/implication1.I")
-    #thing = verifier("/home/wanda/Documents/Dropbox/Research/Final Project/Instance Files/multipleSameAtoms.I")
-    #thing = verifier("/home/wanda/Documents/Dropbox/Research/Final Project/Instance Files/falsumTester.I")
-    #thing = verifier("/home/wanda/Documents/Dropbox/Research/Final Project/Instance Files/biconditionalTester.I")
-    thing = verifier("/home/wanda/Documents/Dropbox/Research/Final Project/Instance Files/runningEx.I")
+''' 
+def main(mainDir='/home/wanda/Documents/Dropbox/Research/Final Project/'): 
+    #thing = verifier(mainDir+"Instance Files/needsNonReflexiveModel.I")
+    #thing = verifier(mainDir+"Instance Files/implication1.I")
+    #thing = verifier(mainDir+"Instance Files/multipleSameAtoms.I")
+    #thing = verifier(mainDir+"Instance Files/falsumTester.I")
+    #thing = verifier(mainDir+"Instance Files/biconditionalTester.I")
+    thing = verifier(mainDir+"Instance Files/runningEx.I")
     thing.readProblemInstanceFile()
     thing.parseProblemInstanceFile()
     thing.myShowTree(thing.syntaxTree, thing.syntaxTree.get_node(thing.syntaxTree.root))
+                    
+if __name__ == "__main__":
+    plac.call(main)

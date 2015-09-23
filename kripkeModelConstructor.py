@@ -5,7 +5,7 @@ Created on Jun 13, 2015
 '''
 import graphviz as gv
 from verifier import verifier
-
+import plac
 from reuseableCode import findInFile
 from modalSolverSuite.reuseableCode import extractTuples
 
@@ -120,14 +120,12 @@ class KripkeStructure(object):
             
 '''
 Testing
-'''     
-if __name__ == "__main__":
-    instanceFileDir = r"/home/wanda/Documents/Dropbox/Research/Final Project/Instance Files/"
+'''  
+def main(instanceFileDir='/home/wanda/Documents/Dropbox/Research/Final Project/Instance Files/', EnfragmoOutputDir='/home/wanda/Documents/Dropbox/Research/Final Project/Output/', instanceFileName='falsumTester'):
     #instanceFileName = "needsNonReflexiveModel"
     #instanceFileName = "multipleSameAtoms"
-    instanceFileName = "falsumTester"
+    #instanceFileName = "falsumTester"
     
-    EnfragmoOutputDir = r"/home/wanda/Documents/Dropbox/Research/Final Project/Output/"
     EnfragmoOutputFileName = instanceFileName+"Out"
     
     ModelOutputDir = EnfragmoOutputDir+"Kripke Models/"
@@ -140,3 +138,6 @@ if __name__ == "__main__":
         thing.printKripkeModel()
     else:
         print("The formula described in instance file "+instanceFileName+".I was determined to be unsatisfiable by Enfragmo, and therefore doesn't have a satisfying Kripke structure.")
+       
+if __name__ == "__main__":
+    plac.call(main)

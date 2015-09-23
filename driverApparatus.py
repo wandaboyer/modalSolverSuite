@@ -20,7 +20,7 @@ def insertRelationConditions(theoryFileDir, theoryFileName, optionalConditionsFi
     return theoryFileName
     
 
-def runEnfragmo(theoryFileDir, theoryFileName, instanceFileDir, instanceFileName, EnfragmoOutputDir, EnfragmoOutputFileName):
+def runEnfragmo(mainDir, theoryFileDir, theoryFileName, instanceFileDir, instanceFileName, EnfragmoOutputDir, EnfragmoOutputFileName):
     '''
         Runs Enfragmo given the theory file and instance file
         
@@ -30,8 +30,8 @@ def runEnfragmo(theoryFileDir, theoryFileName, instanceFileDir, instanceFileName
         file based on the model produced, and will send that off to Enfragmo again
         to further minimize the model.
     '''
-    cmdList = ['/home/wanda/Documents/Dropbox/Research/Final Project/Enfragmo', theoryFileDir+theoryFileName, instanceFileDir+instanceFileName]
-    output = subprocess.Popen(cmdList, stdout=subprocess.PIPE).stdout#.communicate()
+    cmdList = [mainDir+'Enfragmo', theoryFileDir+theoryFileName, instanceFileDir+instanceFileName]
+    output = subprocess.Popen(cmdList, stdout=subprocess.PIPE).stdout
     outputFile = open(EnfragmoOutputDir+EnfragmoOutputFileName, 'w+')
     
     for line in output:
@@ -55,6 +55,21 @@ def EnfragmoOutputToKripkeStructure(instanceFileDir, instanceFileName, EnfragmoO
 
 def main(mainDir='/home/wanda/Documents/Dropbox/Research/Final Project/', theoryFileName='MLDecisionProcK.T', instanceFileName='runningEx', optionalConditionsFileName=''):
     "Run Enfragmo with desired Theory file and problem instance file, optionally with additional conditions."
+    
+    '''
+    Directory structure should be as follows:
+        <Main Directory>
+            Enfragmo
+            Theory files/
+                Single Modality/
+                    MLDecisionProcK<Characterization>.T
+            Instance Files/
+                <problem instance>.I
+            Output/
+                <output>.txt
+                Kripke Models/
+                    <model picture>.svg
+    '''
     theoryFileDir=mainDir+r'Theory files/Single Modality/'
     instanceFileDir=mainDir+r'Instance Files/'
     
@@ -63,9 +78,9 @@ def main(mainDir='/home/wanda/Documents/Dropbox/Research/Final Project/', theory
     instanceFileName=instanceFileName+'.I'
     
     if optionalConditionsFileName is not '':
-        runEnfragmo(theoryFileDir, insertRelationConditions(theoryFileDir, theoryFileName, optionalConditionsFileName), instanceFileDir, instanceFileName, EnfragmoOutputDir, EnfragmoOutputFileName)
+        runEnfragmo(mainDir, theoryFileDir, insertRelationConditions(theoryFileDir, theoryFileName, optionalConditionsFileName), instanceFileDir, instanceFileName, EnfragmoOutputDir, EnfragmoOutputFileName)
     else:
-        runEnfragmo(theoryFileDir, theoryFileName, instanceFileDir, instanceFileName, EnfragmoOutputDir, EnfragmoOutputFileName)
+        runEnfragmo(mainDir, theoryFileDir, theoryFileName, instanceFileDir, instanceFileName, EnfragmoOutputDir, EnfragmoOutputFileName)
         EnfragmoOutputToKripkeStructure(instanceFileDir, instanceFileName, EnfragmoOutputDir, EnfragmoOutputFileName)
     
 if __name__ == '__main__':  

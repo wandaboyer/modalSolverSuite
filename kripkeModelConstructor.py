@@ -8,6 +8,7 @@ from verifier import verifier
 import plac
 from reuseableCode import findInFile
 from modalSolverSuite.reuseableCode import extractTuples
+from graphviz.dot import Digraph
 
 class kripkeModelConstructor(object):
     '''
@@ -96,6 +97,16 @@ class KripkeStructure(object):
     '''
     def __init__(self):
         self.graph = gv.Digraph(format='svg')
+        styles = {
+            'graph': {
+                'nodesep':'1.0'
+            },
+            'edges': {
+                'minlen':'2.0'
+            }
+        }
+        self.graph.graph_attr.update(('graph' in styles and styles['graph']) or {})
+        self.graph.edge_attr.update(('edges' in styles and styles['edges']) or {})
         
     def setValuation(self, valuationDict):
         self.__valuationMap = valuationDict
@@ -108,7 +119,7 @@ class KripkeStructure(object):
                     valuationLabel.add(atoms.get_leader(subformula)) # add that atom to the set of propositions true at the world
             valuationLabel = ', '.join(valuationLabel) # reassign valuationLabel to be a string which is concatenation of elements of the former set, namely a string of all atoms true at a world
             self.graph.node(str(world), label=valuationLabel,xlabel='w'+str(world)) #xlabel gives us the world label, label gives us the atoms true at the world.
- 
+
     def setAccessible(self,accessibilityDict):
         for key, relatesTo in accessibilityDict.items():
             for world in relatesTo:
@@ -116,7 +127,7 @@ class KripkeStructure(object):
     
     def displayKripkeStructure(self, outputFile):
         print(self.graph.source) # doesn't render the string of atoms correctly, but does so in the resulting picture.
-        self.graph.render(filename=outputFile)
+        self.graph.render(filename=outputFile,cleanup=True)
             
 '''
 Testing

@@ -6,7 +6,8 @@ Created on Sep 14, 2015
 '''
 
 import plac
-import os, subprocess
+import os, errno, subprocess
+from modalSolverSuite.reuseableCode import findInFile
 from modalSolverSuite.kripkeModelConstructor import kripkeModelConstructor
 
 
@@ -16,10 +17,33 @@ def insertRelationConditions(theoryFileDir, theoryFileName, optionalConditionsFi
         includes those new conditions on the relation; these may or may not
         necessarily correspond with normal axiom characterizations.
     '''
+    newTheoryFileContents = [line.strip() for line in open(theoryFileDir+theoryFileName)] #if line != '\n']
     
-    return theoryFileName
+    a = findInFile(newTheoryFileContents, lambda x: "PRINT :" in x)
+    printRelationLines = newTheoryFileContents[a:]
+    newTheoryFileContents = newTheoryFileContents[:a]
+    newTheoryFileContents.extend([line.strip() for line in open(theoryFileDir+optionalConditionsFileName)]) # if line != '\n'])
+    newTheoryFileContents.extend(printRelationLines)
     
+    newTheoryFileName = theoryFileName.split('.')[0]+'-AdditionalConditions.T'
 
+    flags = os.O_CREAT | os.O_EXCL | os.O_WRONLY
+    
+    try:
+        file_handle = os.open(theoryFileDir+newTheoryFileName,flags)
+    except OSError as e:
+        if e.errno == errno.EEXIST:  # Failed as the file already exists.
+            pass
+        else:  # Something unexpected went wrong so reraise the exception.
+            raise
+    else:  # No exception, so the file must have been created successfully.
+        with os.fdopen(file_handle, 'w') as outputFile:
+            for line in newTheoryFileContents:
+                outputFile.write("%s\n" % line.strip())
+
+    return newTheoryFileName
+    
+    
 def runEnfragmo(mainDir, theoryFileDir, theoryFileName, instanceFileDir, instanceFileName, EnfragmoOutputDir, EnfragmoOutputFileName):
     '''
         Runs Enfragmo given the theory file and instance file
@@ -53,7 +77,7 @@ def EnfragmoOutputToKripkeStructure(instanceFileDir, instanceFileName, EnfragmoO
     else:
         print("The formula described in instance file "+instanceFileName+".I was determined to be unsatisfiable by Enfragmo, and therefore doesn't have a satisfying Kripke structure.")
 
-def main(mainDir='/home/wanda/Documents/Dropbox/Research/Final Project/', theoryFileName='MLDecisionProcK.T', instanceFileName='runningEx', optionalConditionsFileName=''):
+def main(mainDir='/home/wanda/Documents/Dropbox/Research/Final Project/', theoryFileName='MLDecisionProcK.T', instanceFileName='runningEx', optionalConditionsFileName='FrameConditions.txt'):
     "Run Enfragmo with desired Theory file and problem instance file, optionally with additional conditions."
     
     '''
@@ -61,6 +85,7 @@ def main(mainDir='/home/wanda/Documents/Dropbox/Research/Final Project/', theory
         <Main Directory>
             Enfragmo
             Theory files/
+                <optional conditions>.txt
                 Single Modality/
                     MLDecisionProcK<Characterization>.T
             Instance Files/
@@ -69,6 +94,8 @@ def main(mainDir='/home/wanda/Documents/Dropbox/Research/Final Project/', theory
                 <output>.txt
                 Kripke Models/
                     <model picture>.svg
+                    
+    This is subject to change as I re-organize my project.
     '''
     theoryFileDir=mainDir+r'Theory files/Single Modality/'
     instanceFileDir=mainDir+r'Instance Files/'
@@ -79,6 +106,7 @@ def main(mainDir='/home/wanda/Documents/Dropbox/Research/Final Project/', theory
     
     if optionalConditionsFileName is not '':
         runEnfragmo(mainDir, theoryFileDir, insertRelationConditions(theoryFileDir, theoryFileName, optionalConditionsFileName), instanceFileDir, instanceFileName, EnfragmoOutputDir, EnfragmoOutputFileName)
+        EnfragmoOutputToKripkeStructure(instanceFileDir, instanceFileName, EnfragmoOutputDir, EnfragmoOutputFileName)
     else:
         runEnfragmo(mainDir, theoryFileDir, theoryFileName, instanceFileDir, instanceFileName, EnfragmoOutputDir, EnfragmoOutputFileName)
         EnfragmoOutputToKripkeStructure(instanceFileDir, instanceFileName, EnfragmoOutputDir, EnfragmoOutputFileName)

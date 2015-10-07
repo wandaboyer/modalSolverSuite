@@ -85,7 +85,7 @@ class kripkeModelConstructor(object):
         '''
         Take each of the components and print them out
         '''
-        outputFile = self.ModelOutputDir+self.InstanceFilename+'-kripkeModel'
+        outputFile = self.ModelOutputDir+self.InstanceFilename.split('.')[0]+'-kripkeModel'
         self.KM.displayKripkeStructure(outputFile)
         
            
@@ -113,12 +113,13 @@ class KripkeStructure(object):
       
     def setW(self, atoms, worldList):
         for world in worldList:
-            valuationLabel = set() # each world has a set of proposition letters true at that world
-            for subformula in self.__valuationMap.get(world): # key is world, so from that list of subformulas
-                if subformula in [key for key in atoms.leader]: # if the subformula corresponds with an atom
-                    valuationLabel.add(atoms.get_leader(subformula)) # add that atom to the set of propositions true at the world
-            valuationLabel = ', '.join(valuationLabel) # reassign valuationLabel to be a string which is concatenation of elements of the former set, namely a string of all atoms true at a world
-            self.graph.node(str(world), label=valuationLabel,xlabel='w'+str(world)) #xlabel gives us the world label, label gives us the atoms true at the world.
+            if self.__valuationMap.get(world) is not None:
+                valuationLabel = set() # each world has a set of proposition letters true at that world
+                for subformula in self.__valuationMap.get(world): # key is world, so from that list of subformulas
+                    if subformula in [key for key in atoms.leader]: # if the subformula corresponds with an atom
+                        valuationLabel.add(atoms.get_leader(subformula)) # add that atom to the set of propositions true at the world
+                valuationLabel = ', '.join(valuationLabel) # reassign valuationLabel to be a string which is concatenation of elements of the former set, namely a string of all atoms true at a world
+                self.graph.node(str(world), label=valuationLabel,xlabel='w'+str(world)) #xlabel gives us the world label, label gives us the atoms true at the world.
 
     def setAccessible(self,accessibilityDict):
         for key, relatesTo in accessibilityDict.items():
@@ -126,22 +127,26 @@ class KripkeStructure(object):
                 self.graph.edge(str(key),str(world))
     
     def displayKripkeStructure(self, outputFile):
-        print(self.graph.source) # doesn't render the string of atoms correctly, but does so in the resulting picture.
+        sourceFile = open(outputFile+'-Source.txt', 'w+')
+    
+        for line in self.graph.source:
+            sourceFile.write(line)
+            
         self.graph.render(filename=outputFile,cleanup=True)
             
 '''
 Testing
 '''  
-def main(instanceFileDir='/home/wanda/Documents/Dropbox/Research/Final Project/Instance Files/', EnfragmoOutputDir='/home/wanda/Documents/Dropbox/Research/Final Project/Output/', instanceFileName='falsumTester'):
+def main(instanceFileDir='/home/wanda/Documents/Dropbox/Research/Final Project/Instance Files/EnfragTests/', EnfragmoOutputDir='/home/wanda/Documents/Dropbox/Research/Final Project/Output/EnfragTests/', instanceFileName='falsumTester.I'):
     #instanceFileName = "needsNonReflexiveModel"
     #instanceFileName = "multipleSameAtoms"
     #instanceFileName = "falsumTester"
     
-    EnfragmoOutputFileName = instanceFileName+"Out"
+    EnfragmoOutputFileName = instanceFileName.split('.')[0]+"Out"
     
-    ModelOutputDir = EnfragmoOutputDir+"Kripke Models/"
+    ModelOutputDir = EnfragmoOutputDir+"Kripke Models/"+instanceFileDir.split('/')[-2]+'/'
     
-    thing = kripkeModelConstructor(instanceFileDir+instanceFileName+'.I', instanceFileName, EnfragmoOutputDir+EnfragmoOutputFileName+'.txt', EnfragmoOutputFileName, ModelOutputDir)
+    thing = kripkeModelConstructor(instanceFileDir+instanceFileName, instanceFileName, EnfragmoOutputDir+EnfragmoOutputFileName+'.txt', EnfragmoOutputFileName, ModelOutputDir)
     
     if thing.readEnfragmoOutput():
         thing.parseEnfragmoOutput()

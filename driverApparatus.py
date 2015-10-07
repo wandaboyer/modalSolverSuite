@@ -54,12 +54,15 @@ def runEnfragmo(mainDir, theoryFileDir, theoryFileName, instanceFileDir, instanc
         file based on the model produced, and will send that off to Enfragmo again
         to further minimize the model.
     '''
-    cmdList = [mainDir+'Enfragmo', theoryFileDir+theoryFileName, instanceFileDir+instanceFileName]
-    output = subprocess.Popen(cmdList, stdout=subprocess.PIPE).stdout
+    cmdList = [mainDir+'Enfragmo', theoryFileDir+'/'+theoryFileName, instanceFileDir+'/'+instanceFileName]
+    output = subprocess.Popen(cmdList, stdout=subprocess.PIPE).stdout#.communicate()[0]
+    
+    if not os.path.exists(EnfragmoOutputDir):
+        os.makedirs(EnfragmoOutputDir)
     outputFile = open(EnfragmoOutputDir+EnfragmoOutputFileName, 'w+')
     
     for line in output:
-            outputFile.write(str(line).strip('b\'').strip('b\"').strip(r'\n') + '\n')
+        outputFile.write(str(line).strip('b\'').strip('b\"').strip(r'\n') + '\n')
 
 def EnfragmoOutputToKripkeStructure(instanceFileDir, instanceFileName, EnfragmoOutputDir, EnfragmoOutputFileName):
     '''
@@ -69,7 +72,7 @@ def EnfragmoOutputToKripkeStructure(instanceFileDir, instanceFileName, EnfragmoO
         the rules for how to 
     '''
     ModelOutputDir = EnfragmoOutputDir+"Kripke Models/" 
-    KM= kripkeModelConstructor(instanceFileDir+instanceFileName, instanceFileName, EnfragmoOutputDir+EnfragmoOutputFileName, EnfragmoOutputFileName, ModelOutputDir)
+    KM= kripkeModelConstructor(instanceFileDir+'/'+instanceFileName, instanceFileName, EnfragmoOutputDir+'/'+EnfragmoOutputFileName, EnfragmoOutputFileName, ModelOutputDir)
     if KM.readEnfragmoOutput():
         KM.parseEnfragmoOutput()
         KM.parseInstanceFile()
@@ -77,7 +80,22 @@ def EnfragmoOutputToKripkeStructure(instanceFileDir, instanceFileName, EnfragmoO
     else:
         print("The formula described in instance file "+instanceFileName+".I was determined to be unsatisfiable by Enfragmo, and therefore doesn't have a satisfying Kripke structure.")
 
-def main(mainDir='/home/wanda/Documents/Dropbox/Research/Final Project/', theoryFileName='MLDecisionProcK.T', instanceFileName='runningEx', optionalConditionsFileName='FrameConditions.txt'):
+def runAndMakeModel(mainDir, theoryFileDir, theoryFileName, instanceFileDir, instanceFileName, EnfragmoOutputDir, EnfragmoOutputFileName):
+    '''
+    Figured I'd suck the calls to runEnfragmo and EnfragmoOutputToKripkeStructure
+    out so that either a user can run them once with a specific instance file, 
+    or this drivingProc can be invoked multiple times
+    '''
+    runEnfragmo(mainDir, theoryFileDir, theoryFileName, instanceFileDir, instanceFileName, EnfragmoOutputDir, EnfragmoOutputFileName)
+    EnfragmoOutputToKripkeStructure(instanceFileDir, instanceFileName, EnfragmoOutputDir, EnfragmoOutputFileName)
+
+def drivingProc(mainDir, theoryFileDir, theoryFileName, instanceFileDir, instanceFileName, EnfragmoOutputDir, EnfragmoOutputFileName, optionalConditionsFileName):
+    if optionalConditionsFileName is not '':
+        runAndMakeModel(mainDir, theoryFileDir, insertRelationConditions(theoryFileDir, theoryFileName, optionalConditionsFileName), instanceFileDir, instanceFileName, EnfragmoOutputDir, EnfragmoOutputFileName)
+    else:
+        runAndMakeModel(mainDir, theoryFileDir, theoryFileName, instanceFileDir, instanceFileName, EnfragmoOutputDir, EnfragmoOutputFileName)
+    
+def main(mainDir='/home/wanda/Documents/Dropbox/Research/Final Project/', theoryFileName='MLDecisionProcK.T', instanceFileName='', optionalConditionsFileName='FrameConditions.txt'):
     "Run Enfragmo with desired Theory file and problem instance file, optionally with additional conditions."
     
     '''
@@ -101,15 +119,18 @@ def main(mainDir='/home/wanda/Documents/Dropbox/Research/Final Project/', theory
     instanceFileDir=mainDir+r'Instance Files/'
     
     EnfragmoOutputDir = mainDir+r"Output/"
-    EnfragmoOutputFileName = instanceFileName+"Out.txt"
-    instanceFileName=instanceFileName+'.I'
     
-    if optionalConditionsFileName is not '':
-        runEnfragmo(mainDir, theoryFileDir, insertRelationConditions(theoryFileDir, theoryFileName, optionalConditionsFileName), instanceFileDir, instanceFileName, EnfragmoOutputDir, EnfragmoOutputFileName)
-        EnfragmoOutputToKripkeStructure(instanceFileDir, instanceFileName, EnfragmoOutputDir, EnfragmoOutputFileName)
-    else:
-        runEnfragmo(mainDir, theoryFileDir, theoryFileName, instanceFileDir, instanceFileName, EnfragmoOutputDir, EnfragmoOutputFileName)
-        EnfragmoOutputToKripkeStructure(instanceFileDir, instanceFileName, EnfragmoOutputDir, EnfragmoOutputFileName)
+    if instanceFileName is not '': #only one instance file specified to run procedure on
+        EnfragmoOutputFileName = instanceFileName.split('.')[0]+"Out.txt"
+        drivingProc(mainDir, theoryFileDir, theoryFileName, instanceFileDir, instanceFileName, EnfragmoOutputDir, EnfragmoOutputFileName, optionalConditionsFileName)
+    else: # run procedure on entire instance file directory
+        for instanceFileDir, subdirList, fileList in os.walk(instanceFileDir, topdown=False):
+            for instanceFileName in fileList:
+                if instanceFileName.endswith('.I'):
+                    print(instanceFileName)
+                    EnfragmoOutputFileName = instanceFileName.split('.')[0]+"Out.txt"
+                    drivingProc(mainDir, theoryFileDir, theoryFileName, instanceFileDir, instanceFileName, EnfragmoOutputDir+instanceFileDir.split('/')[-1]+'/', EnfragmoOutputFileName, optionalConditionsFileName)     
+
     
 if __name__ == '__main__':  
     plac.call(main)

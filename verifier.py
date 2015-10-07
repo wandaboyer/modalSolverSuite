@@ -86,8 +86,8 @@ class verifier(object):
     
     def parseProblemInstanceFile(self):
         self.countNumTreeNodes()
-        self.countNumTreeLeaves()
-        self.countNumAtoms()
+        #self.countNumTreeLeaves()
+        #self.countNumAtoms()
         self.setUpSameAtomList()
         self.buildTree()
      
@@ -214,7 +214,6 @@ class verifier(object):
         once as a second (or third, for binary operators) argument in a tuple.             
         '''
         self.syntaxTree = Tree()
-        
         for i in range(1, self.numTreeNodes+1):
             SiConnective = self.determineConnective(i)
             self.makeSyntaxTreeNode(SiConnective, i)
@@ -251,8 +250,9 @@ def main(mainDir='/home/wanda/Documents/Dropbox/Research/Final Project/'):
     #thing = verifier(mainDir+"Instance Files/implication1.I")
     #thing = verifier(mainDir+"Instance Files/multipleSameAtoms.I")
     #thing = verifier(mainDir+"Instance Files/falsumTester.I")
-    #thing = verifier(mainDir+"Instance Files/biconditionalTester.I")
-    thing = verifier(mainDir+"Instance Files/runningEx.I")
+    #thing = verifier(mainDir+"Instance Files/EnfragTests/biconditionalTester.I")
+    #thing = verifier(mainDir+"Instance Files/OtherTests/runningEx.I")
+    thing = verifier(mainDir+"Instance Files/EnfragTests/DiamondP.I")
     thing.readProblemInstanceFile()
     thing.parseProblemInstanceFile()
     thing.myShowTree(thing.syntaxTree, thing.syntaxTree.get_node(thing.syntaxTree.root))

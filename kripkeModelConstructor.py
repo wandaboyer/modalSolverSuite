@@ -153,7 +153,7 @@ def main(instanceFileDir='/home/wanda/Documents/Dropbox/Research/Final Project/I
         thing.parseInstanceFile()
         thing.printKripkeModel()
     else:
-        print("The formula described in instance file "+instanceFileName+".I was determined to be unsatisfiable by Enfragmo, and therefore doesn't have a satisfying Kripke structure.")
+        print("The formula described in instance file "+instanceFileName+" was determined to be unsatisfiable by Enfragmo, and therefore doesn't have a satisfying Kripke structure.")
        
 if __name__ == "__main__":
     plac.call(main)

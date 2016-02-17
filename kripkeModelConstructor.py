@@ -7,7 +7,7 @@ import graphviz as gv
 from verifier import verifier
 import plac
 from reuseableCode import findInFile
-from modalSolverSuite.reuseableCode import extractTuples
+from reuseableCode import extractTuples
 from graphviz.dot import Digraph
 
 class kripkeModelConstructor(object):

@@ -90,10 +90,10 @@ class verifier(object):
         #self.countNumAtoms()
         self.setUpSameAtomList()
         self.buildTree()
-     
+
     def numWorlds(self):
         return int(self.instanceFileLines[1][-2])
-        
+
     def countNumTreeNodes(self):
         '''
         The number of tree nodes is inherent in the number of subformulas,

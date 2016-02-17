@@ -114,7 +114,7 @@ def halvingProc (mainDir, theoryFileDir, theoryFileName, instanceFileDir, instan
     minimalEnfragmoOutputFileName = EnfragmoOutputFileName.split('.')[0]+'-minimal.txt'
 
     # need to make sure lower bound is still on appropriate interval; we don't want to change it below!
-    while minWorlds <= lowerBound:
+    while minWorlds < lowerBound:
         # Must use integer division to get floor of midpoint because otherwise, due to proof, if floor was actual lower
         # bound, then ceiling will also yield satisfying model, but the ceiling wouldn't be the minimal model w.r.t. worlds!
         midpoint = int((lowerBound + minWorlds) / 2) # integer division for midpoint on interval

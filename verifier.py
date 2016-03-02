@@ -252,7 +252,9 @@ def main(mainDir='/home/wanda/Documents/Dropbox/Research/Final Project/'):
     #thing = verifier(mainDir+"Instance Files/falsumTester.I")
     #thing = verifier(mainDir+"Instance Files/EnfragTests/biconditionalTester.I")
     #thing = verifier(mainDir+"Instance Files/OtherTests/runningEx.I")
-    thing = verifier(mainDir+"Instance Files/EnfragTests/DiamondP.I")
+    #thing = verifier(mainDir+"Instance Files/EnfragTests/DiamondP.I")
+    thing = verifier(mainDir+"Instance Files/OtherTests/needs3w.I")
+
     thing.readProblemInstanceFile()
     thing.parseProblemInstanceFile()
     thing.myShowTree(thing.syntaxTree, thing.syntaxTree.get_node(thing.syntaxTree.root))

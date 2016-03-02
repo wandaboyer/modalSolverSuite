@@ -33,12 +33,14 @@ class driverObj(object):
         # loop around runEnfragmo call, changing the instanceFile each iteration; finds first power of 2 that yields a model
         while isUnSAT and currNumWorld <= self.maxWorlds:
             isUnSAT = self.makeModel(currNumWorld)
-            currNumWorld *= 2
+            if isUnSAT:
+                currNumWorld *= 2
 
         if isUnSAT:
             print("\nThe formula failed to have a satisfying model with at most "+str(self.maxWorlds)+" worlds.\n")
         else:  # want to search on interval 2^{k-1} to 2^k, where k = currNumWorld
-            self.halvingProc(currNumWorld/2, currNumWorld)
+            self.halvingProc(int(currNumWorld/2), currNumWorld)
+        # print('result of makeModel: ' + str(self.makeModel(3)))
 
 
     def makeModel (self, currNumWorld):
@@ -46,20 +48,31 @@ class driverObj(object):
         self.runEnfragmo()
         return self.EnfragmoOutputToKripkeStructure(currNumWorld)
 
-    def halvingProc (self, minWorlds, maxWorlds):
-        lowerBound = maxWorlds # this denotes our lower bound, which we will incrementally shrink
-        minimalEnfragmoOutputFileName = self.EnfragmoOutputFileName.split('.')[0]+'-minimal.txt'
-
+    def halvingProc (self, lowerBound, upperBound):
+        found = upperBound
+        self.EnfragmoOutputFileName = self.EnfragmoOutputFileName.split('.')[0]+'-minimal.txt'
+        i = 1
         # need to make sure lower bound is still on appropriate interval; we don't want to change it below!
-        while minWorlds < lowerBound:
+        while lowerBound <= upperBound:
+            print('loop iteration: '+str(i) + 'lower bound: '+str(lowerBound) + ' upper bound: ' + str(upperBound))
             # Must use integer division to get floor of midpoint because otherwise, due to proof, if floor was actual lower
             # bound, then ceiling will also yield satisfying model, but the ceiling wouldn't be the minimal model w.r.t. worlds!
-            midpoint = int((lowerBound + minWorlds) / 2) # integer division for midpoint on interval
-            if self.makeModel(midpoint):
-                # we have found a model, so either midpoint is smallest num worlds, or it is upper bound and must look in lower interval
-                minWorlds = midpoint   # isUNSAT is TRUE so then the minimal model must be ABOVE the midpoint
-            else:  # if no model found at midpoint, lower bound must be in upper half of interval
-                lowerBound = midpoint
+            midpoint = int((upperBound + lowerBound) / 2) # integer division for midpoint on interval
+            print('loop iteration: '+str(i) + 'midpoint: ' + str(midpoint))
+            UNSAT = self.makeModel(midpoint)
+            if UNSAT:
+                # if no model found at midpoint, lower bound must be in upper half of interval
+                lowerBound = midpoint+1
+            else:
+                # We have found a model, so either midpoint is smallest num worlds, or it is upper bound and must look in lower interval
+                upperBound = midpoint-1
+                found = midpoint  # since midpoint succeeded
+            i+=1
+
+        #  Must run makeModel one more time on midpoint due to halting condition overwriting when approaching from above
+        #  Rerun last model you found!
+        print('min num worlds required: '+str(found))
+        self.makeModel(found)
 
     def changeNumWorlds(self, newNumWorlds):
         '''
@@ -175,7 +188,7 @@ def main(mainDir='/home/wanda/Documents/Dropbox/Research/Final Project/', theory
     theoryFileDir=mainDir+r'Theory files/Single Modality/'
     instanceFileDir=mainDir+r'Instance Files/OtherTests/'
 
-    EnfragmoOutputDir = mainDir+r"Output/Blargh/"
+    EnfragmoOutputDir = mainDir+r"Output/"
 
 
     if optionalConditionsFileName is not '':

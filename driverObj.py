@@ -16,11 +16,13 @@ class driverObj(object):
         self.startingNumWorlds = startingNumWorlds
         self.findMaxNumWorlds()
 
+
     def findMaxNumWorlds(self):
         with open(self.instanceFileDir+self.instanceFileName, 'r') as f:
             numSubformulas = int(f.readline().split(']')[0][-1])
 
-        self.maxWorlds = 2**numSubformulas # theoretical upper bound for modal logics with FMP
+        self.maxWorlds = 2**numSubformulas  # theoretical upper bound for modal logics with FMP
+
 
     def runAndMinimizeModel(self):
         '''
@@ -40,7 +42,6 @@ class driverObj(object):
             print("\nThe formula failed to have a satisfying model with at most "+str(self.maxWorlds)+" worlds.\n")
         else:  # want to search on interval 2^{k-1} to 2^k, where k = currNumWorld
             self.halvingProc(int(currNumWorld/2), currNumWorld)
-        # print('result of makeModel: ' + str(self.makeModel(3)))
 
 
     def makeModel (self, currNumWorld):
@@ -48,17 +49,16 @@ class driverObj(object):
         self.runEnfragmo()
         return self.EnfragmoOutputToKripkeStructure(currNumWorld)
 
+
     def halvingProc (self, lowerBound, upperBound):
         found = upperBound
         self.EnfragmoOutputFileName = self.EnfragmoOutputFileName.split('.')[0]+'-minimal.txt'
-        i = 1
+
         # need to make sure lower bound is still on appropriate interval; we don't want to change it below!
         while lowerBound <= upperBound:
-            print('loop iteration: '+str(i) + 'lower bound: '+str(lowerBound) + ' upper bound: ' + str(upperBound))
             # Must use integer division to get floor of midpoint because otherwise, due to proof, if floor was actual lower
             # bound, then ceiling will also yield satisfying model, but the ceiling wouldn't be the minimal model w.r.t. worlds!
-            midpoint = int((upperBound + lowerBound) / 2) # integer division for midpoint on interval
-            print('loop iteration: '+str(i) + 'midpoint: ' + str(midpoint))
+            midpoint = int((upperBound + lowerBound) / 2)  # integer division for midpoint on interval
             UNSAT = self.makeModel(midpoint)
             if UNSAT:
                 # if no model found at midpoint, lower bound must be in upper half of interval
@@ -67,12 +67,11 @@ class driverObj(object):
                 # We have found a model, so either midpoint is smallest num worlds, or it is upper bound and must look in lower interval
                 upperBound = midpoint-1
                 found = midpoint  # since midpoint succeeded
-            i+=1
 
         #  Must run makeModel one more time on midpoint due to halting condition overwriting when approaching from above
         #  Rerun last model you found!
-        print('min num worlds required: '+str(found))
         self.makeModel(found)
+
 
     def changeNumWorlds(self, newNumWorlds):
         '''
@@ -186,7 +185,7 @@ def main(mainDir='/home/wanda/Documents/Dropbox/Research/Final Project/', theory
     This is subject to change as I re-organize my project.
     '''
     theoryFileDir=mainDir+r'Theory files/Single Modality/'
-    instanceFileDir=mainDir+r'Instance Files/OtherTests/'
+    instanceFileDir=mainDir+r'Instance Files/'
 
     EnfragmoOutputDir = mainDir+r"Output/"
 
@@ -203,9 +202,9 @@ def main(mainDir='/home/wanda/Documents/Dropbox/Research/Final Project/', theory
         for instanceFileDir, subdirList, fileList in os.walk(instanceFileDir, topdown=False):
             for instanceFileName in fileList:
                 if instanceFileName.endswith('.I'):
-                    print("\n\n"+instanceFileName+"\n_______\n")
+                    print("\n\n Processing "+instanceFileName+"\n_______\n")
                     EnfragmoOutputFileName = instanceFileName.split('.')[0]+'Out.txt'
-                    driverForFormula = driverObj(mainDir, theoryFileDir, theoryFileName, instanceFileDir, instanceFileName, EnfragmoOutputDir, EnfragmoOutputFileName, optionalConditionsFileName, startingNumWorlds)
+                    driverForFormula = driverObj(mainDir, theoryFileDir, theoryFileName, instanceFileDir+'/', instanceFileName, EnfragmoOutputDir+instanceFileDir.split('/')[-1]+'/', EnfragmoOutputFileName, optionalConditionsFileName, startingNumWorlds)
                     driverForFormula.runAndMinimizeModel()
 
 if __name__ == '__main__':

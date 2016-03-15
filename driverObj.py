@@ -118,6 +118,8 @@ class driverObj(object):
             the rules for how to
         '''
         ModelOutputDir = self.EnfragmoOutputDir+"Kripke Models/"
+        if not os.path.exists(ModelOutputDir):
+            os.makedirs(ModelOutputDir)
         KM= kripkeModelConstructor(self.instanceFileDir+self.instanceFileName, self.instanceFileName, self.EnfragmoOutputDir+self.EnfragmoOutputFileName, self.EnfragmoOutputFileName, ModelOutputDir)
         if KM.readEnfragmoOutput():
             KM.parseEnfragmoOutput()
@@ -164,7 +166,7 @@ def insertRelationConditions(theoryFileDir, theoryFileName, optionalConditionsFi
     return newTheoryFileName
 
 
-def main(mainDir='/home/wanda/Documents/Dropbox/Research/Final Project/', theoryFileName='MLDecisionProcK.T', instanceFileName='', optionalConditionsFileName='', startingNumWorlds=1):
+def main(mainDir='/home/wbkboyer/Dropbox/Research/Final Project/', theoryFileName='MLDecisionProcK.T', instanceFileName='needsNonSymmetricModel.I', optionalConditionsFileName='', startingNumWorlds=1):
     "Run Enfragmo with desired Theory file and problem instance file, optionally with additional conditions."
 
     '''needsNonReflexiveModel.I
@@ -185,7 +187,7 @@ def main(mainDir='/home/wanda/Documents/Dropbox/Research/Final Project/', theory
     This is subject to change as I re-organize my project.
     '''
     theoryFileDir=mainDir+r'Theory files/Single Modality/'
-    instanceFileDir=mainDir+r'Instance Files/'
+    instanceFileDir=mainDir+r'Instance Files/OtherTests/'
 
     EnfragmoOutputDir = mainDir+r"Output/"
 

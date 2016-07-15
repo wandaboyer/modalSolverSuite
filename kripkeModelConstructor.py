@@ -3,6 +3,7 @@ Created on Jun 13, 2015
 
 @author: wandaboyer
 '''
+import os
 import graphviz as gv
 from verifier import verifier
 import plac
@@ -33,9 +34,10 @@ class kripkeModelConstructor(object):
         Opens file and reads into a list
         '''
         self.EnfragmoOutputFileLines = [line.strip() for line in open(self.EnfragmoOutputFilepath) if line != '\n']
-        
-        if "<Satisfiable/>" in self.EnfragmoOutputFileLines[4]:
-            return True
+
+        for line in self.EnfragmoOutputFileLines:
+            if "<Satisfiable/>" in line:
+                return True
     
     def parseEnfragmoOutput(self):
         self.KM.setValuation(self.readValuation())
@@ -127,24 +129,27 @@ class KripkeStructure(object):
                 self.graph.edge(str(key),str(world))
     
     def displayKripkeStructure(self, outputFile):
+        dir = os.path.dirname(outputFile+'-Source.txt')
+        if not os.path.exists(dir):
+            os.makedirs(dir)
         sourceFile = open(outputFile+'-Source.txt', 'w+')
     
         for line in self.graph.source:
             sourceFile.write(line)
             
-        self.graph.render(filename=outputFile,cleanup=True)
+        self.graph.render(filename=outputFile+'-Source.txt', cleanup=True)
             
 '''
 Testing
 '''  
-def main(instanceFileDir='/home/wanda/Documents/Dropbox/Research/Final Project/Instance Files/EnfragTests/', EnfragmoOutputDir='/home/wanda/Documents/Dropbox/Research/Final Project/Output/EnfragTests/', instanceFileName='falsumTester.I'):
+def main(instanceFileDir='/home/wbkboyer/Dropbox/Research/Final Project/Instance Files/OtherTests/', EnfragmoOutputDir='/home/wbkboyer/Dropbox/Research/Final Project/Output/OtherTests/', instanceFileName='eucMod.I'):
     #instanceFileName = "needsNonReflexiveModel"
     #instanceFileName = "multipleSameAtoms"
     #instanceFileName = "falsumTester"
     
     EnfragmoOutputFileName = instanceFileName.split('.')[0]+"Out"
     
-    ModelOutputDir = EnfragmoOutputDir+"Kripke Models/"+instanceFileDir.split('/')[-2]+'/'
+    ModelOutputDir = EnfragmoOutputDir+"Kripke Models/"#+instanceFileDir.split('/')[-2]+'/'
     
     thing = kripkeModelConstructor(instanceFileDir+instanceFileName, instanceFileName, EnfragmoOutputDir+EnfragmoOutputFileName+'.txt', EnfragmoOutputFileName, ModelOutputDir)
     

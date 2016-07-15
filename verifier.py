@@ -245,7 +245,7 @@ class verifier(object):
 '''
 Testing
 ''' 
-def main(mainDir='/home/wanda/Documents/Dropbox/Research/Final Project/'): 
+def main(mainDir='/home/wbkboyer/Dropbox/Research/Final Project/'):
     #thing = verifier(mainDir+"Instance Files/needsNonReflexiveModel.I")
     #thing = verifier(mainDir+"Instance Files/implication1.I")
     #thing = verifier(mainDir+"Instance Files/multipleSameAtoms.I")
@@ -253,8 +253,8 @@ def main(mainDir='/home/wanda/Documents/Dropbox/Research/Final Project/'):
     #thing = verifier(mainDir+"Instance Files/EnfragTests/biconditionalTester.I")
     #thing = verifier(mainDir+"Instance Files/OtherTests/runningEx.I")
     #thing = verifier(mainDir+"Instance Files/EnfragTests/DiamondP.I")
-    thing = verifier(mainDir+"Instance Files/OtherTests/needs3w.I")
-
+    #thing = verifier(mainDir+"Instance Files/OtherTests/needs3w.I")
+    thing = verifier(mainDir + "Instance Files/OtherTests/needsNonTransitiveModel.I")
     thing.readProblemInstanceFile()
     thing.parseProblemInstanceFile()
     thing.myShowTree(thing.syntaxTree, thing.syntaxTree.get_node(thing.syntaxTree.root))

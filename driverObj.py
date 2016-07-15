@@ -166,7 +166,7 @@ def insertRelationConditions(theoryFileDir, theoryFileName, optionalConditionsFi
     return newTheoryFileName
 
 
-def main(mainDir='/home/wbkboyer/Dropbox/Research/Final Project/', theoryFileName='MLDecisionProcK.T', instanceFileName='needsNonSymmetricModel.I', optionalConditionsFileName='', startingNumWorlds=1):
+def main(mainDir='/home/wbkboyer/Dropbox/Research/Final Project/', theoryFileName='MLDecisionProcK.T', instanceFileName='', optionalConditionsFileName='', startingNumWorlds=1):
     "Run Enfragmo with desired Theory file and problem instance file, optionally with additional conditions."
 
     '''needsNonReflexiveModel.I

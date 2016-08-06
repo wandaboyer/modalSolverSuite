@@ -137,12 +137,12 @@ class KripkeStructure(object):
         for line in self.graph.source:
             sourceFile.write(line)
             
-        self.graph.render(filename=outputFile+'-Source.txt', cleanup=True)
+        self.graph.render(filename=outputFile+'-Image', cleanup=True)
             
 '''
 Testing
 '''  
-def main(instanceFileDir='/home/wbkboyer/Dropbox/Research/Final Project/Instance Files/OtherTests/', EnfragmoOutputDir='/home/wbkboyer/Dropbox/Research/Final Project/Output/OtherTests/', instanceFileName='eucMod.I'):
+def main(instanceFileDir='/home/wbkboyer/Dropbox/Research/Final Project/Instance Files/EnfragTests/FalsumTests/', EnfragmoOutputDir='/home/wbkboyer/Dropbox/Research/Final Project/Output/FalsumTests/', instanceFileName='falsumTesterDiaBox.I'):
     #instanceFileName = "needsNonReflexiveModel"
     #instanceFileName = "multipleSameAtoms"
     #instanceFileName = "falsumTester"

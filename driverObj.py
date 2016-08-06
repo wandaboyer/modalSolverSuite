@@ -166,7 +166,7 @@ def insertRelationConditions(theoryFileDir, theoryFileName, optionalConditionsFi
     return newTheoryFileName
 
 
-def main(mainDir='/home/wbkboyer/Dropbox/Research/Final Project/', theoryFileName='MLDecisionProcK.T', instanceFileName='', optionalConditionsFileName='', startingNumWorlds=1):
+def main(mainDir='/home/wbkboyer/Dropbox/Research/Final Project/', theoryFileDir='Single Modality/', theoryFileName='MLDecisionProcK.T', instanceFileDir='EnfragTests/FalsumTests/', instanceFileName='', optionalConditionsFileName='', startingNumWorlds=1):
     "Run Enfragmo with desired Theory file and problem instance file, optionally with additional conditions."
 
     '''needsNonReflexiveModel.I
@@ -186,10 +186,11 @@ def main(mainDir='/home/wbkboyer/Dropbox/Research/Final Project/', theoryFileNam
 
     This is subject to change as I re-organize my project.
     '''
-    theoryFileDir=mainDir+r'Theory files/Single Modality/'
-    instanceFileDir=mainDir+r'Instance Files/OtherTests/'
+    EnfragmoOutputDir = mainDir + r"Output/"+instanceFileDir
+    theoryFileDir=mainDir+'Theory files/'+theoryFileDir #r'Theory files/Single Modality/'
+    instanceFileDir=mainDir+'Instance Files/'+instanceFileDir #r'Instance Files/EnfragTests/FalsumTests/'
 
-    EnfragmoOutputDir = mainDir+r"Output/"
+
 
 
     if optionalConditionsFileName is not '':

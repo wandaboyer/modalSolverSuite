@@ -1,9 +1,9 @@
-'''
+"""
 Created on Jan. 12, 2015
 
 @author: Wanda B. Boyer
 @contact: wbkboyer@gmail.com
-'''
+"""
 from treelib import Tree, Node
 
 import re, plac
@@ -245,7 +245,7 @@ class verifier(object):
 '''
 Testing
 ''' 
-def main(mainDir='/home/wbkboyer/Dropbox/Research/Final Project/'):
+def main(mainDir='/home/wbkboyer/GitHub/MSS-SupplementaryFiles/'):
     #thing = verifier(mainDir+"Instance Files/needsNonReflexiveModel.I")
     #thing = verifier(mainDir+"Instance Files/implication1.I")
     #thing = verifier(mainDir+"Instance Files/multipleSameAtoms.I")

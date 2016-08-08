@@ -1,8 +1,8 @@
-'''
+"""
 Created on Jun 12, 2015
 
 @author: wandaboyer
-'''
+"""
 import re, os, plac
 
 class formulaConversion(object):
@@ -70,9 +70,11 @@ class formulaConversion(object):
 
 '''
 Testing
+
+Note: Needs location on filesystem of benchmark files
 '''
             
-def main(rootDir='/home/wanda/Documents/Dropbox/Research/Modal benchmark formulas/'):
+def main(rootDir):
     for dirName, subdirList, fileList in os.walk(rootDir, topdown=False):
         for fname in fileList:
             thing = formulaConversion(dirName+"/"+fname, fname, dirName+"/ModifiedFormulas/")

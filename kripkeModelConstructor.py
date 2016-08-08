@@ -1,8 +1,8 @@
-'''
+"""
 Created on Jun 13, 2015
 
 @author: wandaboyer
-'''
+"""
 import os
 import graphviz as gv
 from verifier import verifier
@@ -142,7 +142,7 @@ class KripkeStructure(object):
 '''
 Testing
 '''  
-def main(instanceFileDir='/home/wbkboyer/Dropbox/Research/Final Project/Instance Files/EnfragTests/FalsumTests/', EnfragmoOutputDir='/home/wbkboyer/Dropbox/Research/Final Project/Output/FalsumTests/', instanceFileName='falsumTesterDiaBox.I'):
+def main(instanceFileDir='/home/wbkboyer/GitHub/MSS-SupplementaryFiles/Instance Files/EnfragTests/FalsumTests/', EnfragmoOutputDir='/home/wbkboyer/GitHub/MSS-SupplementaryFiles/Output/FalsumTests/', instanceFileName='falsumTesterDiaBox.I'):
     #instanceFileName = "needsNonReflexiveModel"
     #instanceFileName = "multipleSameAtoms"
     #instanceFileName = "falsumTester"

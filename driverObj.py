@@ -166,17 +166,19 @@ def insertRelationConditions(theoryFileDir, theoryFileName, optionalConditionsFi
     return newTheoryFileName
 
 
-def main(mainDir='/home/wbkboyer/Dropbox/Research/Final Project/', theoryFileDir='Single Modality/', theoryFileName='MLDecisionProcK.T', instanceFileDir='EnfragTests/FalsumTests/', instanceFileName='', optionalConditionsFileName='', startingNumWorlds=1):
+def main(mainDir='/home/wbkboyer/GitHub/MSS-SupplementaryFiles/', theoryFileDir='Single Modality/', theoryFileName='MLDecisionProcK.T', instanceFileDir='', instanceFileName='', optionalConditionsFileName='', startingNumWorlds=1):
     "Run Enfragmo with desired Theory file and problem instance file, optionally with additional conditions."
 
-    '''needsNonReflexiveModel.I
+    ''' For the required theory and problem instance files, please clone the repository:
+            https://github.com/wandaboyer/MSS-SupplementaryFiles.git
+
     Directory structure should be as follows:
         <Main Directory>
             Enfragmo
             Theory files/
-                <optional conditions>.txt
                 Single Modality/
-                    MLDecisionProcK<Characterization>.T
+                    <optional conditions>.txt
+                    MLDecisionProcK.T
             Instance Files/
                 <problem instance>.I
             Output/
@@ -184,14 +186,11 @@ def main(mainDir='/home/wbkboyer/Dropbox/Research/Final Project/', theoryFileDir
                 Kripke Models/
                     <model picture>.svg
 
-    This is subject to change as I re-organize my project.
+    This is subject to change as I reorganize my project.
     '''
     EnfragmoOutputDir = mainDir + r"Output/"+instanceFileDir
-    theoryFileDir=mainDir+'Theory files/'+theoryFileDir #r'Theory files/Single Modality/'
-    instanceFileDir=mainDir+'Instance Files/'+instanceFileDir #r'Instance Files/EnfragTests/FalsumTests/'
-
-
-
+    theoryFileDir=mainDir+'Theory Files/'+theoryFileDir
+    instanceFileDir=mainDir+'Instance Files/'+instanceFileDir
 
     if optionalConditionsFileName is not '':
         theoryFileName = insertRelationConditions(theoryFileDir, theoryFileName, optionalConditionsFileName)

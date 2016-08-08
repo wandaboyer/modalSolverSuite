@@ -34,7 +34,7 @@ This repository containts the Python modules that comprise the Modal Solver Suit
 1. [Os](https://docs.python.org/3/library/os.html)
 1. [Defaultdict](https://docs.python.org/3.3/library/collections.html#collections.defaultdict)
 
-It is recommended that you create a (virtual environment)[http://docs.python-guide.org/en/latest/dev/virtualenvs/] with the Python 3.4 interpreter and these modules.
+It is recommended that you create a [virtual environment](http://docs.python-guide.org/en/latest/dev/virtualenvs/) with the Python 3.4 interpreter and these modules.
 
 If you have not already done so, please clone the following repo:
 

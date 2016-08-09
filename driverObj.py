@@ -1,5 +1,5 @@
 import plac
-import os, errno, subprocess
+import os, sys, errno, subprocess
 from reuseableCode import findInFile
 from kripkeModelConstructor import kripkeModelConstructor
 
@@ -99,8 +99,11 @@ class driverObj(object):
             file based on the model produced, and will send that off to Enfragmo again
             to further minimize the model.
         '''
-        cmdList = [self.mainDir+'Enfragmo', self.theoryFileDir+self.theoryFileName, self.instanceFileDir+self.instanceFileName]
-        output = subprocess.Popen(cmdList, stdout=subprocess.PIPE).stdout#.communicate()[0]
+        try:
+            cmdList = [self.mainDir+'Enfragmo', self.theoryFileDir+self.theoryFileName, self.instanceFileDir+self.instanceFileName]
+            output = subprocess.Popen(cmdList, stdout=subprocess.PIPE).stdout#.communicate()[0]
+        except OSError:
+            sys.exit("Enfragmo binaries not available. Please contact wbkboyer@gmail.com for information.")
 
         if not os.path.exists(self.EnfragmoOutputDir):
             os.makedirs(self.EnfragmoOutputDir)
